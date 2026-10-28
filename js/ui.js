@@ -1,4 +1,5 @@
 /* Small DOM and formatting helpers shared by every module. */
+import { LOCALE } from './i18n.js';
 
 export const $ = (s, root = document) => root.querySelector(s);
 export const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
@@ -23,7 +24,7 @@ export function fmtDate(t) {
   if (!t) return '';
   try {
     const d = new Date(t);
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString(LOCALE, { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' });
   } catch (e) { return ''; }
 }
 

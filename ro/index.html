@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cronometrul lui Sisif</title>
+<meta name="description" content="Un cronometru de concentrare construit pe Mitul lui Sisif de Albert Camus. Împinge bolovanul, disprețuiește zeii și răspunde de ce împingi mai departe.">
+<meta name="theme-color" content="#c7683a">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="alternate" hreflang="en" href="https://the-sisyphus-timer.vercel.app/">
+<link rel="alternate" hreflang="ro" href="https://the-sisyphus-timer.vercel.app/ro/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cronometrul lui Sisif">
+<meta property="og:title" content="Cronometrul lui Sisif">
+<meta property="og:description" content="Un cronometru de concentrare construit pe Mitul lui Sisif de Albert Camus. Împinge bolovanul, disprețuiește zeii și răspunde de ce împingi mai departe.">
+<meta property="og:url" content="https://the-sisyphus-timer.vercel.app/ro/">
+<meta property="og:image" content="https://the-sisyphus-timer.vercel.app/og-ro.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Marcellus&display=swap">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body data-page="timer">
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle class="mk" cx="20" cy="20" r="18"/><path class="mk-inc" d="M9 15L17 19L13 27M24 8L27 17L33 19M22 30L25 25"/></svg>
+      <span><span class="brand-name">Cronometrul lui Sisif</span><span class="sub">Un cronometru de concentrare construit pe <cite>Mitul lui Sisif</cite> de Albert Camus</span></span>
+    </a>
+    <div class="top-actions"><span class="chip" id="moodChip">Sisif e <b>lucid</b></span><a class="lang" href="../" hreflang="en" lang="en" data-lang-switch title="English">EN</a></div>
+  </header>
+  <nav class="nav" aria-label="Pagini"><ul>
+    <li><a href="./" aria-current="page">Cronometru</a></li>
+    <li><a href="heroes.html">Eroi</a></li>
+    <li><a href="journal.html">Inscripții</a></li>
+    <li><a href="progress.html">Trofee</a></li>
+    <li><a href="idea.html">Ideea</a></li>
+    <li><a href="worldviews.html">Viziuni</a></li>
+    <li><a href="class.html">Clasa</a></li>
+    <li><a href="present.html">Prezintă</a></li>
+  </ul></nav>
+  <h1 class="sr-only">Cronometru</h1>
+
+  <div class="class-bar" id="classBar" hidden>
+    <span>În clasa <b id="cbCode">ABCD</b>. Răspunsurile tale pot ajunge pe proiector, fără nume.</span>
+    <a class="btn sm primary" href="class.html">Deschide pagina clasei</a>
+  </div>
+
+  <section class="frieze" aria-label="Muntele">
+    <div class="band"><i></i></div>
+    <div class="stage">
+      <svg id="scene" viewBox="0 0 1000 360" role="img" aria-labelledby="sceneT sceneD">
+        <title id="sceneT">Sisif și bolovanul</title>
+        <desc id="sceneD">Cât timp merge cronometrul, eroul împinge un bolovan pe munte. La final, bolovanul se rostogolește înapoi, iar eroul coboară după el în pauză.</desc>
+        <defs>
+          <mask id="crescent" maskUnits="userSpaceOnUse" x="-30" y="-30" width="60" height="60">
+            <circle r="17" fill="#fff"/>
+            <circle cx="8" cy="-6" r="15" fill="#000"/>
+          </mask>
+        </defs>
+        <rect class="sky" width="1000" height="360"/>
+        <rect id="night" class="night" width="1000" height="360" opacity="0"/>
+        <g id="stars" class="stars" style="opacity:0"></g>
+        <g id="sun" class="sun" transform="translate(81 96)">
+          <circle r="19"/>
+          <line x1="0" y1="-26" x2="0" y2="-33"/><line x1="0" y1="26" x2="0" y2="33"/>
+          <line x1="-26" y1="0" x2="-33" y2="0"/><line x1="26" y1="0" x2="33" y2="0"/>
+          <line x1="18.4" y1="18.4" x2="23.3" y2="23.3"/><line x1="-18.4" y1="-18.4" x2="-23.3" y2="-23.3"/>
+          <line x1="18.4" y1="-18.4" x2="23.3" y2="-23.3"/><line x1="-18.4" y1="18.4" x2="-23.3" y2="23.3"/>
+        </g>
+        <g id="moon" class="moon" style="opacity:0" transform="translate(92 92)"><circle r="17" mask="url(#crescent)"/></g>
+        <path class="mount" d="M0 360V330H220L840 120H1000V360Z"/>
+        <g class="strata">
+          <path d="M0 364H220L840 154H1000"/>
+          <path d="M0 402H220L840 192H1000"/>
+          <path d="M0 442H220L840 232H1000"/>
+          <path d="M0 484H220L840 274H1000"/>
+          <path d="M0 528H220L840 318H1000"/>
+        </g>
+        <path class="bolt" d="M560 0L528 70H556L512 168L590 52H560L590 0Z"/>
+        <g id="boulder" transform="translate(180 284)">
+          <circle class="b" r="46"/>
+          <circle class="b-ring" r="39"/>
+          <path class="b-inc" d="M-22-30L-8-12L-15 4L1 22M14-37L20-16L35-9M-37 9L-19 17L-24 33M8 8L22 14L26 30"/>
+          <path class="b-inc" id="marks" d=""/>
+        </g>
+        <g id="fig"></g>
+        <text id="label" class="label" x="40" y="200">ΣΙΣΥΦΟΣ</text>
+      </svg>
+      <aside class="god" id="god" hidden aria-label="Un zeu te ispitește">
+        <div class="god-head"><span class="god-gr" id="godGr">ΕΡΜΗΣ</span><span class="god-who" id="godWho">Hermes, mesagerul zeilor</span></div>
+        <p class="god-line" id="godLine"></p>
+        <div class="god-bar"><i id="godBar"></i></div>
+        <div class="god-actions"><button class="btn sm primary" id="scorn" type="button">Disprețuiește</button><button class="btn sm" id="yield" type="button">Cedează</button></div>
+      </aside>
+    </div>
+    <div class="band lower"><i></i></div>
+  </section>
+
+  <section class="console" aria-label="Cronometru">
+    <p class="phase" id="phase">La poalele muntelui · Bolovanul 1</p>
+    <div class="timer" id="timer" role="timer" aria-live="off">25:00</div>
+    <div class="breath" id="breath" hidden><span class="ring" id="breathRing" aria-hidden="true"></span><span class="breath-label" id="breathLabel">Inspiră</span></div>
+    <p class="quote" id="quote"></p>
+    <p class="prompt" id="prompt" hidden></p>
+    <p class="voice" id="voice" hidden></p>
+    <div class="task-row" id="taskRow">
+      <label for="task">Numește-ți bolovanul</label>
+      <input id="task" type="text" maxlength="60" autocomplete="off" placeholder="Opțional, de exemplu &bdquo;Exercițiile din capitolul 4&rdquo;">
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="primary" type="button">Împinge bolovanul</button>
+      <button class="btn" id="secondary" type="button" hidden>Renunță</button>
+      <button class="btn ghost" id="openSettings" type="button">Setări</button>
+    </div>
+    <p class="toast" id="toast" role="status" aria-live="polite"></p>
+    <p class="sr-only" id="sr" aria-live="assertive"></p>
+    <p class="hint"><kbd>Space</kbd> pornește și pune pauză · <kbd>S</kbd> disprețuiește un zeu · <kbd>Y</kbd> cedează</p>
+  </section>
+
+  <section class="stats" aria-label="Mitul tău de până acum">
+    <div class="stat"><span class="k">Bolovani</span><span class="v" id="sBoulders">0</span><span class="n">împinși până în vârf</span></div>
+    <div class="stat"><span class="k">Pe munte</span><span class="v" id="sTime">0 min</span><span class="n">de muncă concentrată</span></div>
+    <div class="stat"><span class="k">Zei disprețuiți</span><span class="v" id="sScorn">0</span><span class="n" id="sScornN">Ai cedat de 0 ori</span></div>
+    <div class="stat"><span class="k">E Sisif fericit?</span><span class="v" id="sMood">Lucid</span><div class="meter" aria-hidden="true"><i id="meter"></i></div></div>
+  </section>
+
+  <footer>Citatele din Camus: traducere proprie după originalul francez, <cite lang="fr">Le Mythe de Sisyphe</cite> (1942). Ești nou aici? Începe cu <a href="idea.html">Ideea</a>.</footer>
+</div>
+
+<dialog id="reflect" aria-labelledby="reflectH">
+  <div class="dlg">
+    <p class="eyebrow" id="reflectNo">Bolovanul 1 e din nou jos</p>
+    <h2 id="reflectH">De ce îl împingi?</h2>
+    <textarea id="why" rows="3" maxlength="500" aria-labelledby="reflectH" placeholder="Scrie răspunsul sincer, chiar dacă e &bdquo;pentru că trebuie&rdquo;."></textarea>
+    <fieldset class="choices">
+      <legend class="eyebrow">Cum privești stânca de data asta?</legend>
+      <label class="opt"><input type="radio" name="resp" value="escape" id="rEscape"><b>Privește în altă parte</b><span>Derulezi, dormi, renunți. Te prefaci că întrebarea nici n-a apărut.</span></label>
+      <label class="opt"><input type="radio" name="resp" value="hope" id="rHope"><b>Speră că merită</b><span>Totul va avea sens mai târziu: diploma, slujba, viața de după.</span></label>
+      <label class="opt"><input type="radio" name="resp" value="revolt" id="rRevolt"><b>Împinge oricum</b><span>Nicio promisiune că ceva are sens. Împingi cu ochii deschiși, iar efortul e al tău.</span></label>
+    </fieldset>
+    <div class="verdict" id="verdict" hidden aria-live="polite"><q id="vQuote"></q><p id="vNote"></p><div id="allies"></div></div>
+    <label class="share-row" id="shareRow" hidden><input type="checkbox" id="shareClass" checked> <span id="shareLabel">Trimite răspunsul și clasei</span></label>
+    <div class="dlg-actions">
+      <button class="btn" id="skipDescent" type="button" disabled>Sari peste coborâre</button>
+      <button class="btn primary" id="descend" type="button" disabled>Începe coborârea</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="settings" aria-labelledby="settingsH">
+  <div class="dlg">
+    <h2 id="settingsH">Setări</h2>
+    <fieldset class="presets">
+      <legend class="eyebrow">Durata sesiunii</legend>
+      <label class="opt"><input type="radio" name="preset" value="classic" id="pClassic"><b>Clasic</b><span>25 min de împins, 5 min de coborâre</span></label>
+      <label class="opt"><input type="radio" name="preset" value="deep" id="pDeep"><b>Muncă profundă</b><span>50 min de împins, 10 min de coborâre</span></label>
+      <label class="opt"><input type="radio" name="preset" value="demo" id="pDemo"><b>Demo pentru clasă</b><span>30 s de împins, 15 s de coborâre. Deblochează toți eroii pentru prezentare.</span></label>
+      <label class="opt"><input type="radio" name="preset" value="custom" id="pCustom"><b>Personalizat</b><span>Alege-ți singur duratele mai jos</span></label>
+    </fieldset>
+    <div class="custom" id="customRow">
+      <label for="cWork">Împins, minute<input type="number" id="cWork" min="1" max="180" step="1" inputmode="numeric"></label>
+      <label for="cBrk">Coborâre, minute<input type="number" id="cBrk" min="1" max="60" step="1" inputmode="numeric"></label>
+    </div>
+    <p class="note" id="settingsNote" hidden>Noile durate se aplică de la următorul bolovan.</p>
+    <fieldset class="toggles">
+      <legend class="eyebrow">Muntele</legend>
+      <label class="opt"><input type="checkbox" id="tGods"><b>Ispitele zeilor</b><span>Distrageri apar în timpul sesiunii. Disprețuiește-le sau cedează.</span></label>
+      <label class="opt"><input type="checkbox" id="tStrict"><b>Mod strict</b><span>Bolovanul alunecă înapoi dacă părăsești fila cât împingi.</span></label>
+      <label class="opt"><input type="checkbox" id="tBreathe"><b>Ghid de respirație</b><span>Un cerc lent de respirație în timpul coborârii.</span></label>
+      <label class="opt"><input type="checkbox" id="tSound"><b>Sunet</b><span>Note de liră și un vuiet când cade stânca.</span></label>
+      <label class="opt"><input type="checkbox" id="tAmb"><b>Ambianță</b><span>Vânt, cicade și o liră îndepărtată cât merge cronometrul. Necesită sunetul.</span></label>
+      <label class="opt"><input type="checkbox" id="tNotify"><b>Anunță-mă când expiră timpul</b><span>O notificare când se termină un urcuș sau o coborâre cât ești în altă filă.</span></label>
+    </fieldset>
+    <div class="dlg-actions spread">
+      <button class="btn" id="erase" type="button">Șterge mitul</button>
+      <button class="btn primary" id="closeSettings" type="button">Gata</button>
+    </div>
+  </div>
+</dialog>
+
+<script type="module" src="../js/main.js"></script>
+</body>
+</html>

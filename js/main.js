@@ -2,15 +2,19 @@
 import { S, store, save, saveRun, bumpMood, resetStats, applyPreset, remainingNow, progress, ROLL_MS, PHASES } from './store.js';
 import { $, $$, clamp, esc, fmtS, fmt, toast, announce, openDialog } from './ui.js';
 import { Q, PROMPTS, GODS, RESP } from './data.js';
+import { t, quoted } from './i18n.js';
 import { ensureAudio, pluck, rumble, setAmbience } from './audio.js';
 import { initScene, draw, view, strike, heroOf } from './scene.js';
 import { renderStats, heroUnlocked, heroesUnlockedBetween, unlock, checkTrophies, alliesHTML, panelVoice, setBreathing, markDay } from './features.js';
 import { room, heartbeat, onBoulder as classBoulder, sendVote } from './classroom.js';
 import { initNav } from './nav.js';
 
+const params = new URLSearchParams(location.search);
 /* Old QR links pointed at /?join=CODE; joining now happens on the class page. */
-const joinParam = new URLSearchParams(location.search).get('join');
-if (joinParam) location.replace('class.html?join=' + encodeURIComponent(joinParam));
+if (params.get('join')) location.replace('class.html?join=' + encodeURIComponent(params.get('join')));
+/* The presenter's slides embed the timer with ?demo=1: 30-second climbs that leave the saved preset and session alone. */
+const DEMO = params.get('demo') === '1';
+if (DEMO) { S.keepPreset = S.settings.preset; S.ephemeral = true; S.settings.preset = 'demo'; applyPreset(); }
 
 const run = (S.run = {
   phase: 'ready', running: false, endAt: 0, remaining: S.settings.work * 1000, total: S.settings.work * 1000, brkTotal: S.settings.brk * 1000,
@@ -32,13 +36,26 @@ async function wake(on) {
   } catch (e) { lock = null; }
 }
 
+/* ---------- "time is up" notifications, only while the tab is in the background ---------- */
+async function notify(kind) {
+  if (!S.settings.notify || !document.hidden || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const title = t(kind === 'work' ? 'notify.workTitle' : 'notify.breakTitle');
+  const opts = { body: t(kind === 'work' ? 'notify.workBody' : 'notify.breakBody'), icon: '/icon-192.png', badge: '/icon-192.png', tag: 'sisyphus' };
+  try {
+    const reg = navigator.serviceWorker && (await navigator.serviceWorker.getRegistration());
+    if (reg) await reg.showNotification(title, opts); else new Notification(title, opts);
+  } catch (e) {
+    try { new Notification(title, opts); } catch (x) { /* not allowed here */ }
+  }
+}
+
 /* ---------- rendering ---------- */
 let lastClock = '', shownQuarter = -1, shownQuote = '', armed = 0;
 function setQuote(q) {
   if (q === shownQuote) return;
   shownQuote = q;
   const el = $('#quote');
-  el.textContent = '“' + q + '”';
+  el.textContent = quoted(q);
   el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
 }
 function renderClock() {
@@ -48,8 +65,8 @@ function renderClock() {
     lastClock = txt;
     const el = $('#timer');
     el.innerHTML = Array.from(txt).map((c) => (c === ':' ? '<span class="c">:</span>' : '<span class="d">' + c + '</span>')).join('');
-    el.setAttribute('aria-label', txt + ' left');
-    document.title = run.running && run.phase === 'work' ? txt + ' · Pushing' : run.running && run.phase === 'break' ? txt + ' · The descent' : run.phase === 'reflect' ? 'At the bottom again' : 'The Sisyphus Timer';
+    el.setAttribute('aria-label', t('timer.left', { t: txt }));
+    if (!DEMO) document.title = run.running && run.phase === 'work' ? t('title.pushing', { t: txt }) : run.running && run.phase === 'break' ? t('title.descent', { t: txt }) : run.phase === 'reflect' ? t('title.reflect') : t('title.base');
   }
   if (run.phase === 'work' && run.running) {
     const q = Math.min(3, Math.floor(progress() * 4));
@@ -60,19 +77,19 @@ function updateUI() {
   const ph = run.phase, pBtn = $('#primary'), sBtn = $('#secondary'), hero = heroOf();
   let label = '', quote = '', prim = '', sec = '', prompt = '', voice = null;
   if (ph === 'ready') {
-    label = 'At the foot of the mountain · Boulder ' + (st.boulders + 1);
+    label = t('ready.label', { n: st.boulders + 1 });
     quote = hero.id !== 'sisyphus' ? hero.quote : st.boulders ? Q.ready : Q.first;
-    prim = 'Push the boulder';
+    prim = t('btn.push');
   } else if (ph === 'work') {
-    label = run.running ? 'Pushing · Boulder ' + (st.boulders + 1) + (run.task ? ' · ' + run.task : '') : 'Leaning on the rock · Paused';
+    label = run.running ? t('work.label', { n: st.boulders + 1 }) + (run.task ? ' · ' + run.task : '') : t('work.paused');
     quote = run.running ? Q.work[Math.min(3, Math.floor(progress() * 4))] : Q.paused;
-    prim = run.running ? 'Pause' : 'Resume'; sec = 'Abandon';
+    prim = t(run.running ? 'btn.pause' : 'btn.resume'); sec = t('btn.abandon');
   } else if (ph === 'rolling' || ph === 'reflect') {
-    label = 'Boulder ' + st.boulders + ' rolls back down'; quote = Q.rolling;
+    label = t('roll.label', { n: st.boulders }); quote = Q.rolling;
   } else if (ph === 'break') {
-    label = run.running ? 'The descent · The hour of consciousness' : 'The descent · Paused';
+    label = t(run.running ? 'break.label' : 'break.paused');
     quote = Q.brk[run.prompt % 2]; prompt = PROMPTS[run.prompt % PROMPTS.length]; voice = panelVoice(run.prompt);
-    prim = run.running ? 'Pause' : 'Resume'; sec = 'Skip the descent';
+    prim = t(run.running ? 'btn.pause' : 'btn.resume'); sec = t('btn.skip');
   }
   shownQuarter = ph === 'work' && run.running ? Math.min(3, Math.floor(progress() * 4)) : -1;
   $('#phase').textContent = label;
@@ -82,7 +99,7 @@ function updateUI() {
   if (!(ph === 'work' && Date.now() - armed < 3000)) sBtn.textContent = sec;
   $('#prompt').hidden = !prompt; $('#prompt').textContent = prompt;
   $('#voice').hidden = !voice;
-  if (voice) $('#voice').innerHTML = '<span>From the panel</span> <b>' + esc(voice.name) + ':</b> “' + esc(voice.quote) + '”';
+  if (voice) $('#voice').innerHTML = '<span>' + t('voice.from') + '</span> <b>' + esc(voice.name) + ':</b> ' + esc(quoted(voice.quote));
   $('#taskRow').hidden = ph !== 'ready';
   $('#settingsNote').hidden = ph === 'ready';
   setAmbience(run.running);
@@ -102,7 +119,7 @@ function showGod() {
   const dur = Math.min(12000, run.total * 0.25);
   run.god = { i, until: Date.now() + dur, dur };
   renderGod(); saveRun();
-  announce(GODS[i].name + ' tempts you. ' + GODS[i].line + ' Press S to scorn or Y to give in.');
+  announce(t('god.announce', { name: GODS[i].name, line: GODS[i].line }));
   pluck([1046.5, 1318.5], 0.09, 0.05);
 }
 function renderGod() {
@@ -134,11 +151,11 @@ function dismissGod(kind) {
   if (kind === 'yield') {
     st.yielded++; bumpMood(-5); strike();
     const ms = slip();
-    toast(ms > 0 ? 'You looked. There was nothing there. The boulder slipped back ' + fmt(ms) + '.' : 'You looked. There was nothing there.');
+    toast(ms > 0 ? t('god.yield', { t: fmt(ms) }) : t('god.yield0'));
   } else {
     st.scorned++; bumpMood(kind === 'scorn' ? 3 : 2);
-    if (!st.gods.includes(g.name)) st.gods.push(g.name);
-    toast(kind === 'scorn' ? 'You scorned ' + g.name + '. The rock keeps moving.' : 'You ignored ' + g.name + '. That counts as scorn.');
+    if (!st.gods.includes(g.gr)) st.gods.push(g.gr);
+    toast(t(kind === 'scorn' ? 'god.scorn' : 'god.ignored', { name: g.name }));
     checkTrophies();
   }
   run.nextGod = scheduleGod(0.18, 0.14);
@@ -180,13 +197,13 @@ function toReady() {
 function secondary() {
   if (run.phase === 'work') {
     if (Date.now() - armed > 3000) {
-      armed = Date.now(); $('#secondary').textContent = 'Click again to abandon';
+      armed = Date.now(); $('#secondary').textContent = t('btn.abandonConfirm');
       setTimeout(() => { if (Date.now() - armed >= 3000) updateUI(); }, 3050);
       return;
     }
     armed = 0;
     toReady();
-    toast('You walked away. The rock rolled back to the bottom on its own.');
+    toast(t('abandoned'));
   } else if (run.phase === 'break') toReady();
 }
 function completeWork(now) {
@@ -201,8 +218,9 @@ function completeWork(now) {
   if (run.slips === 0) events.push('unmoved');
   save(); renderStats(); wake(false);
   unlock(events); checkTrophies();
-  heroesUnlockedBetween(before, st.boulders).forEach((hr) => setTimeout(() => toast('New hero unlocked: ' + hr.name + '. Pick it on the Heroes page.'), 2600));
+  heroesUnlockedBetween(before, st.boulders).forEach((hr) => setTimeout(() => toast(t('hero.new', { name: hr.name })), 2600));
   classBoulder();
+  notify('work');
   rumble(ROLL_MS / 1000, 160, 0.5);
   pluck([329.63, 293.66, 261.63, 220], 0.22, 0.1);
   updateUI();
@@ -211,13 +229,13 @@ function completeWork(now) {
 /* ---------- the reflection after each boulder ---------- */
 function openReflect() {
   run.phase = 'reflect';
-  $('#reflectNo').textContent = 'Boulder ' + st.boulders + ' is back at the bottom';
+  $('#reflectNo').textContent = t('reflect.no', { n: st.boulders });
   $('#why').value = '';
   $$('input[name=resp]').forEach((r) => { r.checked = false; });
   $('#verdict').hidden = true; $('#allies').innerHTML = '';
   $('#descend').disabled = true; $('#skipDescent').disabled = true;
   $('#shareRow').hidden = !room.code;
-  if (room.code) $('#shareLabel').textContent = 'Also send my answer to class ' + room.code + ' (no name attached)';
+  if (room.code) $('#shareLabel').textContent = t('reflect.share', { code: room.code });
   openDialog($('#reflect'));
   updateUI();
 }
@@ -243,6 +261,7 @@ function startBreak() {
 }
 function endBreak() {
   unlock(['descent']);
+  notify('break');
   pluck([261.63, 329.63, 392, 523.25], 0.18, 0.1);
   toReady();
 }
@@ -286,11 +305,13 @@ function syncSettingsForm() {
   $('#customRow').classList.toggle('off', !custom);
   $('#cWork').disabled = !custom; $('#cBrk').disabled = !custom;
   [['#tGods', 'gods'], ['#tStrict', 'strict'], ['#tSound', 'sound'], ['#tAmb', 'ambience'], ['#tBreathe', 'breathe']].forEach(([id, k]) => { $(id).checked = !!s[k]; });
+  $('#tNotify').checked = !!s.notify && 'Notification' in window && Notification.permission === 'granted';
   $('#settingsNote').hidden = run.phase === 'ready';
 }
 function settingsChanged() {
   applyPreset();
   if (!heroUnlocked(heroOf())) S.settings.hero = 'sisyphus';
+  if (S.keepPreset) S.keepPreset = S.settings.preset;
   save();
   if (run.phase === 'ready') { run.total = S.settings.work * 1000; run.remaining = run.total; lastClock = ''; renderClock(); saveRun(); }
   syncSettingsForm();
@@ -325,21 +346,30 @@ function wire() {
   $('#tGods').addEventListener('change', (e) => { S.settings.gods = e.target.checked; if (!S.settings.gods && run.god) { run.god = null; renderGod(); } save(); });
   $('#tStrict').addEventListener('change', (e) => { S.settings.strict = e.target.checked; save(); });
   $('#tSound').addEventListener('change', (e) => { S.settings.sound = e.target.checked; if (S.settings.sound) { ensureAudio(); pluck([392], 0, 0.08); } save(); setAmbience(run.running); });
-  $('#tAmb').addEventListener('change', (e) => { S.settings.ambience = e.target.checked; save(); ensureAudio(); setAmbience(run.running); if (e.target.checked && !run.running) toast('Ambience starts when the timer runs.'); });
+  $('#tAmb').addEventListener('change', (e) => { S.settings.ambience = e.target.checked; save(); ensureAudio(); setAmbience(run.running); if (e.target.checked && !run.running) toast(t('amb.later')); });
   $('#tBreathe').addEventListener('change', (e) => { S.settings.breathe = e.target.checked; save(); setBreathing(run.phase === 'break' && run.running && S.settings.breathe); });
+  $('#tNotify').addEventListener('change', async (e) => {
+    const box = e.target;
+    if (!box.checked) { S.settings.notify = false; save(); return; }
+    if (!('Notification' in window)) { box.checked = false; toast(t('notify.unsupported')); return; }
+    let p = Notification.permission;
+    if (p === 'default') { try { p = await Notification.requestPermission(); } catch (x) { p = 'denied'; } }
+    if (p !== 'granted') { box.checked = false; S.settings.notify = false; save(); toast(t('notify.denied')); return; }
+    S.settings.notify = true; save(); toast(t('notify.on'));
+  });
   let eraseArmed = 0;
   $('#erase').addEventListener('click', () => {
     const b = $('#erase');
     if (Date.now() - eraseArmed > 3000) {
-      eraseArmed = Date.now(); b.textContent = 'Click again to erase';
-      setTimeout(() => { if (Date.now() - eraseArmed >= 3000) b.textContent = 'Erase the myth'; }, 3050);
+      eraseArmed = Date.now(); b.textContent = t('erase.confirm');
+      setTimeout(() => { if (Date.now() - eraseArmed >= 3000) b.textContent = t('erase'); }, 3050);
       return;
     }
     eraseArmed = 0;
     resetStats(); S.settings.hero = 'sisyphus'; save();
     renderStats(); updateUI();
-    b.textContent = 'Erased';
-    setTimeout(() => { b.textContent = 'Erase the myth'; }, 2000);
+    b.textContent = t('erased');
+    setTimeout(() => { b.textContent = t('erase'); }, 2000);
   });
 
   document.addEventListener('keydown', (e) => {
@@ -365,7 +395,7 @@ function wire() {
       if (away > 4000) {
         st.yielded++; bumpMood(-4);
         const ms = slip();
-        toast('You left the mountain for ' + fmt(away) + '. The boulder slipped back ' + fmt(ms) + '.');
+        toast(t('strict.slip', { a: fmt(away), b: fmt(ms) }));
         save(); saveRun(); renderStats();
       }
     }
@@ -376,7 +406,7 @@ function wire() {
 
 /* ---------- boot ---------- */
 function boot() {
-  const saved = store.get('run', null);
+  const saved = DEMO ? null : store.get('run', null);
   if (saved && typeof saved === 'object' && PHASES.indexOf(saved.phase) !== -1) {
     Object.assign(run, saved); run.lastTick = 0; run.hiddenAt = 0;
     if (run.god && !GODS[run.god.i]) run.god = null;
@@ -385,7 +415,7 @@ function boot() {
   if (run.task) $('#task').value = run.task;
   initNav('timer'); initScene(); wire();
   syncSettingsForm(); updateUI(); renderGod();
-  if (room.code) {
+  if (room.code && !DEMO) {
     $('#classBar').hidden = false; $('#cbCode').textContent = room.code;
     heartbeat(45000, (round) => { if (round === null) $('#classBar').hidden = true; });
   }

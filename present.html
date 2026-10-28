@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Present · The Sisyphus Timer</title>
+<meta name="description" content="A ready-made class presentation on Camus' The Myth of Sisyphus, with a live timer and a live class vote.">
+<meta name="theme-color" content="#c7683a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="alternate" hreflang="en" href="https://the-sisyphus-timer.vercel.app/present.html">
+<link rel="alternate" hreflang="ro" href="https://the-sisyphus-timer.vercel.app/ro/present.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Sisyphus Timer">
+<meta property="og:title" content="Present · The Sisyphus Timer">
+<meta property="og:description" content="A ready-made class presentation on Camus' The Myth of Sisyphus, with a live timer and a live class vote.">
+<meta property="og:url" content="https://the-sisyphus-timer.vercel.app/present.html">
+<meta property="og:image" content="https://the-sisyphus-timer.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Marcellus&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="present" class="presenting">
+
+<header class="deck-top">
+  <a class="deck-back" href="./">&larr; The Sisyphus Timer</a>
+  <span class="deck-count" id="count">1 / 9</span>
+  <span class="deck-tools">
+    <button class="btn sm ghost" id="notesBtn" type="button" aria-pressed="false" aria-controls="notes">Notes</button>
+    <button class="btn sm ghost" id="full" type="button">Fullscreen</button>
+    <a class="lang" href="ro/present.html" hreflang="ro" lang="ro" data-lang-switch title="Română">RO</a>
+  </span>
+  <span class="deck-bar"><i id="bar"></i></span>
+</header>
+
+<main class="deck" id="deck">
+  <section class="slide s-title" aria-label="Title">
+    <div class="band"><i></i></div>
+    <p class="eyebrow">A presentation on Albert Camus</p>
+    <h1 class="slide-h">Why are you pushing it?</h1>
+    <p class="slide-sub">The Myth of Sisyphus, and the rock every student pushes</p>
+    <div class="band"><i></i></div>
+    <aside class="notes">Open with a question to the room: who has an exam or a deadline this week? Then say that Camus wrote a whole book about that feeling. Keep it under 30 seconds.</aside>
+  </section>
+
+  <section class="slide" aria-label="The myth">
+    <p class="eyebrow">The myth</p>
+    <h2 class="slide-h2">Who was Sisyphus?</h2>
+    <div class="trio">
+      <div><b>He chained Death</b><p>The craftiest king of Ephyra put Death in chains, and for a while nobody on earth could die.</p></div>
+      <div><b>He tricked the underworld</b><p>Allowed back up for a moment, he saw the sun and the sea again and refused to return.</p></div>
+      <div><b>The punishment</b><p>The gods gave him a rock and a hill. Every time he reaches the top, the rock rolls back down. Forever.</p></div>
+    </div>
+    <aside class="notes">Tell it like a story, not a list. The point to land: the gods chose the worst punishment they could imagine, work that never ends and never matters.</aside>
+  </section>
+
+  <section class="slide" aria-label="The absurd">
+    <p class="eyebrow">Camus&rsquo; starting point</p>
+    <blockquote class="slide-quote">The absurd is born of this confrontation between the human need and the unreasonable silence of the world.</blockquote>
+    <p class="slide-sub">We want life to make sense. The world doesn&rsquo;t answer. That collision is the absurd.</p>
+    <aside class="notes">Read the quote slowly, then say the plain version underneath. The absurd isn't in us or in the world, it's in the clash between the two.</aside>
+  </section>
+
+  <section class="slide" aria-label="The why">
+    <p class="eyebrow">Where it starts</p>
+    <p class="routine">Lecture, lab, deadline, sleep.<br>Lecture, lab, deadline, sleep.<br>Lecture, lab, deadline, sleep.</p>
+    <blockquote class="slide-quote small-q">One day the &lsquo;why&rsquo; arises and everything begins in that weariness tinged with amazement.</blockquote>
+    <aside class="notes">Pause after the third line. Ask: has anyone here suddenly asked "why am I doing this?" in the middle of exam season? That moment is where Camus begins.</aside>
+  </section>
+
+  <section class="slide" aria-label="Three answers">
+    <p class="eyebrow">Three ways to answer</p>
+    <div class="trio answers">
+      <div class="ans escape"><span class="tag escape">Escape</span><b>Look away</b><p>Scroll, sleep, quit. Act like the question never came up.</p></div>
+      <div class="ans hope"><span class="tag hope">Hope</span><b>Bet on later</b><p>It will all make sense after the diploma. Camus calls this the leap.</p></div>
+      <div class="ans revolt"><span class="tag revolt">Revolt</span><b>Push anyway</b><p>No guarantee of meaning. You push with your eyes open, and the effort is yours.</p></div>
+    </div>
+    <p class="slide-sub">Camus chooses revolt.</p>
+    <aside class="notes">Make sure everyone remembers these three words: escape, hope, revolt. The class will vote on them in two slides.</aside>
+  </section>
+
+  <section class="slide s-live" aria-label="Try it">
+    <p class="eyebrow">Try it</p>
+    <h2 class="slide-h2">One 30-second climb</h2>
+    <div class="live-frame"><iframe data-src="index.html?embed=1&amp;demo=1" title="The timer, in a 30-second demo"></iframe></div>
+    <aside class="notes">Click Push the boulder. A god will tempt you mid-climb: scorn it out loud. When the rock rolls down, answer the question live, pick revolt, and show who stands with you and who argues back.</aside>
+  </section>
+
+  <section class="slide s-live" aria-label="Your turn">
+    <p class="eyebrow">Your turn</p>
+    <h2 class="slide-h2">Scan the code and answer</h2>
+    <div class="live-frame"><iframe data-src="class.html?embed=1" title="Class mode"></iframe></div>
+    <aside class="notes">Click Start a class. Give the room about a minute to scan and answer. Read two or three answers out loud, then read the verdict line. If the class picked hope, ask why Camus would call that the leap.</aside>
+  </section>
+
+  <section class="slide" aria-label="Other worldviews">
+    <p class="eyebrow">The same rock, seven worldviews</p>
+    <ul class="mini-panel">
+      <li><b>Camus</b><span>Push anyway. The struggle is enough.</span></li>
+      <li><b>Nietzsche</b><span>Would you push it again forever? Then love it.</span></li>
+      <li><b>Kierkegaard</b><span>The meaning lies beyond the mountain. Take the leap.</span></li>
+      <li><b>Marcus Aurelius</b><span>The obstacle is the way. Do your part well.</span></li>
+      <li><b>Epicurus</b><span>Why climb at all? Live quietly, avoid needless pain.</span></li>
+      <li><b>Confucius</b><span>One basket of earth at a time. Stopping is your choice.</span></li>
+      <li><b>Zen</b><span>Chop wood, carry water. Be fully here for this step.</span></li>
+    </ul>
+    <aside class="notes">This is the worldview comparison. Point out that only Camus refuses both the hope beyond and the escape from the rock.</aside>
+  </section>
+
+  <section class="slide s-end" aria-label="Conclusion">
+    <blockquote class="slide-quote big-q">One must imagine Sisyphus happy.</blockquote>
+    <p class="slide-sub">The rock is still there tomorrow. What changes is whether the pushing is yours.</p>
+    <div class="end-qr"><div class="qr" id="siteQr" data-label="QR code for the site"></div><p>Push your own boulder<br><b id="siteUrl">the-sisyphus-timer.vercel.app</b></p></div>
+    <aside class="notes">End on the line and stop talking for a second. Then invite everyone to use the timer for their next study session.</aside>
+  </section>
+</main>
+
+<aside class="deck-notes" id="notes" hidden aria-label="Speaker notes"><b>Notes</b><p id="notesText"></p></aside>
+<nav class="deck-nav" aria-label="Slides">
+  <button class="btn" id="prev" type="button" aria-label="Previous slide">&larr;</button>
+  <button class="btn primary" id="next" type="button" aria-label="Next slide">&rarr;</button>
+</nav>
+
+<script type="module" src="js/i18n.js"></script>
+<script type="module" src="js/present.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
-/* Entry point for every page except the timer. <body data-page="..."> picks what to render. */
+/* Entry point for every page except the timer and the presenter. <body data-page="..."> picks what to render. */
 import { initNav } from './nav.js';
 import { $, toast } from './ui.js';
+import { t } from './i18n.js';
 import { renderStats, renderJournal, initJournalExport, renderHeroes, initHeroes, renderTrophies, renderCalendar, renderPanel } from './features.js';
 
 const page = document.body.getAttribute('data-page');
@@ -13,7 +14,7 @@ if (page === 'heroes') {
 } else if (page === 'progress') {
   renderStats(); renderTrophies(); renderCalendar();
   $('#shareCard').addEventListener('click', async () => {
-    try { const { makeCard } = await import('./share.js'); await makeCard(); } catch (e) { toast('The card could not be drawn in this browser.'); }
+    try { const { makeCard } = await import('./share.js'); await makeCard(); } catch (e) { toast(t('card.fail')); }
   });
 } else if (page === 'worldviews') {
   renderPanel();

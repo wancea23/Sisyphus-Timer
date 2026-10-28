@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inscripții · Cronometrul lui Sisif</title>
+<meta name="description" content="Toate răspunsurile tale la întrebarea: de ce îl împingi?">
+<meta name="theme-color" content="#c7683a">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="alternate" hreflang="en" href="https://the-sisyphus-timer.vercel.app/journal.html">
+<link rel="alternate" hreflang="ro" href="https://the-sisyphus-timer.vercel.app/ro/journal.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cronometrul lui Sisif">
+<meta property="og:title" content="Inscripții · Cronometrul lui Sisif">
+<meta property="og:description" content="Toate răspunsurile tale la întrebarea: de ce îl împingi?">
+<meta property="og:url" content="https://the-sisyphus-timer.vercel.app/ro/journal.html">
+<meta property="og:image" content="https://the-sisyphus-timer.vercel.app/og-ro.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Marcellus&display=swap">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body data-page="journal">
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle class="mk" cx="20" cy="20" r="18"/><path class="mk-inc" d="M9 15L17 19L13 27M24 8L27 17L33 19M22 30L25 25"/></svg>
+      <span><span class="brand-name">Cronometrul lui Sisif</span><span class="sub">Un cronometru de concentrare construit pe <cite>Mitul lui Sisif</cite> de Albert Camus</span></span>
+    </a>
+    <div class="top-actions"><a class="run-pill" id="runPill" href="./" hidden></a><span class="chip" id="moodChip">Sisif e <b>lucid</b></span><a class="lang" href="../journal.html" hreflang="en" lang="en" data-lang-switch title="English">EN</a></div>
+  </header>
+  <nav class="nav" aria-label="Pagini"><ul>
+    <li><a href="./">Cronometru</a></li>
+    <li><a href="heroes.html">Eroi</a></li>
+    <li><a href="journal.html" aria-current="page">Inscripții</a></li>
+    <li><a href="progress.html">Trofee</a></li>
+    <li><a href="idea.html">Ideea</a></li>
+    <li><a href="worldviews.html">Viziuni</a></li>
+    <li><a href="class.html">Clasa</a></li>
+    <li><a href="present.html">Prezintă</a></li>
+  </ul></nav>
+
+  <header class="page-head">
+    <h1 class="page-title">Inscripții</h1>
+    <p class="lede">De fiecare dată când stânca se rostogolește înapoi, cronometrul pune o singură întrebare: de ce îl împingi? Fiecare răspuns e cioplit aici, împreună cu felul în care ai ales să privești stânca.</p>
+  </header>
+
+  <section class="journal-page" aria-label="Răspunsurile tale">
+    <p class="tally" id="tally"></p>
+    <div class="export-row" id="exportRow" hidden>
+      <button class="btn sm" id="copyJournal" type="button">Copiază ca text</button>
+      <button class="btn sm" id="downloadJournal" type="button">Descarcă .txt</button>
+    </div>
+    <ol id="inscriptions"></ol>
+  </section>
+
+  <footer>Inscripțiile rămân în acest browser. Nimic nu este trimis nicăieri, decât dacă trimiți un răspuns unei clase.</footer>
+</div>
+<p class="toast floating" id="toast" role="status" aria-live="polite"></p>
+<p class="sr-only" id="sr" aria-live="assertive"></p>
+<script type="module" src="../js/pages.js"></script>
+</body>
+</html>

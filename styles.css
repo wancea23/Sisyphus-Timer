@@ -384,3 +384,70 @@ a.btn{display:inline-block; text-decoration:none}
 .board:fullscreen{background:var(--bg); overflow-y:auto; padding:24px max(24px, env(safe-area-inset-left, 0px))}
 .board::backdrop{background:var(--bg)}
 .board .page-title{font-size:clamp(30px, 4vw, 48px)}
+
+/* ---------- v4: language switch, sources, embedded pages, presenter mode ---------- */
+.lang{font:700 12px/1 var(--ui); letter-spacing:.12em; padding:9px 10px; border:1.5px solid var(--line); border-radius:999px; color:var(--fg); text-decoration:none}
+.lang:hover{border-color:var(--fg)}
+.lang:focus-visible{outline:2px solid var(--fg); outline-offset:3px}
+.biblio{margin:10px 0 0; padding-left:1.4em; display:grid; gap:8px; max-width:80ch}
+.biblio li{font:400 16px/1.5 var(--body)}
+
+/* Pages shown inside the presenter's slides */
+body.embed .top, body.embed .nav, body.embed footer, body.embed .stats, body.embed .hint, body.embed .class-bar,
+body.embed .class-choose .steps, body.embed .class-choose .label-h, body.embed .page-head .lede{display:none}
+body.embed .wrap{padding-block:10px 24px; gap:16px}
+
+/* Presenter mode */
+html:has(body.presenting), body.presenting{height:100%; overflow:hidden}
+.deck-top{position:fixed; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--bg); border-bottom:1px solid var(--line);
+  padding-top:calc(10px + env(safe-area-inset-top, 0px)); padding-bottom:10px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.deck-back{font:700 12px/1 var(--ui); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
+.deck-back:hover{color:var(--fg)}
+.deck-count{font:500 14px/1 var(--ui); font-variant-numeric:tabular-nums; color:var(--muted); white-space:nowrap}
+.deck-tools{display:flex; gap:8px; align-items:center}
+.deck-bar{position:absolute; left:0; right:0; bottom:-1px; height:3px}
+.deck-bar i{display:block; height:100%; width:0; background:var(--fg); transition:width .3s}
+.deck{position:fixed; left:0; right:0; bottom:0; top:calc(58px + env(safe-area-inset-top, 0px)); overflow-y:auto;
+  padding-top:clamp(16px, 4vh, 48px); padding-bottom:96px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.slide{max-width:1100px; min-height:100%; margin:0 auto; display:flex; flex-direction:column; justify-content:center; gap:clamp(14px, 2.4vh, 28px); box-sizing:border-box}
+.slide .notes{display:none}
+.slide-h{font:400 clamp(44px, 9vw, 120px)/1.02 var(--display); margin:0; text-wrap:balance}
+.slide-h2{font:400 clamp(30px, 5vw, 60px)/1.08 var(--display); margin:0; text-wrap:balance}
+.slide-sub{font:400 clamp(19px, 2.4vw, 28px)/1.4 var(--body); margin:0; max-width:46ch; color:var(--muted)}
+.slide-quote{margin:0; font:italic 400 clamp(26px, 4vw, 52px)/1.25 var(--body); text-wrap:balance; max-width:28ch}
+.slide-quote::before{content:open-quote}
+.slide-quote::after{content:close-quote}
+.small-q{font-size:clamp(20px, 2.6vw, 32px)}
+.big-q{font-size:clamp(40px, 7vw, 96px)}
+.routine{margin:0; font:400 clamp(26px, 4.4vw, 58px)/1.25 var(--display); color:var(--muted)}
+.s-title .band{border-top:2px solid var(--figure)}
+.trio{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px}
+@media (max-width:760px){ .trio{grid-template-columns:minmax(0, 1fr)} }
+.trio > div{border-top:2px solid var(--fg); padding-top:12px; display:grid; gap:8px; align-content:start; min-width:0}
+.trio b{font:400 clamp(22px, 2.6vw, 32px)/1.15 var(--display)}
+.trio p{margin:0; font:400 clamp(16px, 1.7vw, 21px)/1.45 var(--body)}
+.ans .tag{justify-self:start}
+.live-frame{flex:1; min-height:62vh; border:2px solid var(--figure); background:var(--bg)}
+.live-frame iframe{display:block; width:100%; height:100%; min-height:62vh; border:0}
+.mini-panel{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.mini-panel li{display:grid; grid-template-columns:minmax(0, 13em) minmax(0, 1fr); gap:4px 18px; border-bottom:1px solid var(--line); padding-bottom:10px}
+.mini-panel b{font:400 clamp(20px, 2.4vw, 28px)/1.2 var(--display)}
+.mini-panel span{font:400 clamp(17px, 2vw, 24px)/1.4 var(--body)}
+@media (max-width:640px){ .mini-panel li{grid-template-columns:minmax(0, 1fr)} }
+.end-qr{display:flex; align-items:center; gap:20px; flex-wrap:wrap}
+.end-qr .qr{width:150px; max-width:40vw; background:var(--white); padding:8px; border:2px solid var(--on-white)}
+.end-qr p{margin:0; font:500 18px/1.4 var(--ui)}
+.end-qr b{font:400 22px/1.3 var(--display); overflow-wrap:anywhere}
+.deck-notes{position:fixed; z-index:6; left:max(16px, env(safe-area-inset-left, 0px)); right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(84px + env(safe-area-inset-bottom, 0px));
+  max-width:720px; margin:0 auto; box-sizing:border-box; background:var(--surface); border:2px solid var(--fg); padding:12px 16px; font:400 16px/1.5 var(--ui); box-shadow:6px 6px 0 var(--figure)}
+.deck-notes b{font:700 11px/1 var(--ui); letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.deck-notes p{margin:4px 0 0}
+.deck-nav{position:fixed; z-index:6; right:max(16px, env(safe-area-inset-right, 0px)); bottom:calc(16px + env(safe-area-inset-bottom, 0px)); display:flex; gap:8px}
+.deck-nav .btn{font-size:18px; padding:12px 18px}
+@media (max-width:520px){ .deck-top .btn.ghost{padding:8px 10px} .deck-count{display:none} }
+/* The timer inside a slide: scene and clock side by side, so Push stays visible on a projector */
+body.embed .task-row{display:none}
+@media (min-width:820px){
+  body.embed[data-page="timer"] .wrap{max-width:none; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr); align-items:center; column-gap:28px}
+  body.embed[data-page="timer"] .timer{font-size:clamp(56px, 8vw, 104px)}
+}

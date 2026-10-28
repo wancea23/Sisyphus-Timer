@@ -4,6 +4,7 @@ import { fmtDur, download, toast } from './ui.js';
 import { figureGeo, boulderAt, offAt, B_START, B_END, MOUNT_PATH, BOULDER_INC, tallyPath, heroOf } from './scene.js';
 import { moodWord, streak } from './features.js';
 import { TROPHIES } from './data.js';
+import { t, cnt, quoted } from './i18n.js';
 
 const W = 1080, H = 1350, MEANDER = 'M0 15H20M15 15V1H3V11H11V5H7';
 const STRATA = ['M0 364H220L840 154H1000', 'M0 402H220L840 192H1000', 'M0 442H220L840 232H1000', 'M0 484H220L840 274H1000'];
@@ -74,10 +75,10 @@ export async function makeCard() {
 
   ctx.fillStyle = c.muted; ctx.font = '700 22px "Alegreya Sans", sans-serif';
   if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
-  ctx.fillText('THE SISYPHUS TIMER', 40, 92);
+  ctx.fillText(t('card.brand'), 40, 92);
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.fillStyle = c.fg; ctx.font = '400 66px Marcellus, Georgia, serif';
-  ctx.fillText('My myth so far', 40, 168);
+  ctx.fillText(t('card.title'), 40, 168);
 
   const fx = 40, fy = 210;
   ctx.fillStyle = c.panel; ctx.fillRect(fx, fy, 1000, 412);
@@ -98,7 +99,7 @@ export async function makeCard() {
   ctx.fillText(hero.label, Number(g.lx), Number(g.ly)); ctx.textAlign = 'left';
   ctx.restore();
 
-  const cols = [[String(st.boulders), st.boulders === 1 ? 'BOULDER' : 'BOULDERS'], [fmtDur(st.workSec), 'ON THE MOUNTAIN'], [String(st.scorned), 'GODS SCORNED']];
+  const cols = [[String(st.boulders), t(st.boulders === 1 ? 'card.boulder' : 'card.boulders')], [fmtDur(st.workSec), t('card.mountain')], [String(st.scorned), t('card.gods')]];
   cols.forEach(([v, k], i) => {
     const x = 40 + i * 345;
     ctx.fillStyle = c.fg; ctx.font = '400 64px Marcellus, Georgia, serif'; ctx.fillText(v, x, 730);
@@ -106,31 +107,31 @@ export async function makeCard() {
   });
   ctx.fillStyle = c.fg; ctx.fillRect(40, 810, 1000, 2);
   ctx.font = '400 50px Marcellus, Georgia, serif';
-  ctx.fillText('Sisyphus is ' + moodWord(st.mood) + '.', 40, 890);
+  ctx.fillText(t('card.mood', { w: moodWord(st.mood) }), 40, 890);
   const last = S.journal.find((e) => e.why);
   ctx.font = 'italic 400 40px Alegreya, Georgia, serif'; ctx.fillStyle = c.fg;
-  const y = wrap(ctx, '“' + (last ? last.why : hero.quote) + '”', 40, 975, 1000, 56, 4);
+  const y = wrap(ctx, quoted(last ? last.why : hero.quote), 40, 975, 1000, 56, 4);
   ctx.fillStyle = c.muted; ctx.font = '500 24px "Alegreya Sans", sans-serif';
-  ctx.fillText(last ? 'My answer to: why are you pushing it?' : hero.name + ', in Camus’ “' + hero.chapter + '”', 40, y + 6);
+  ctx.fillText(last ? t('card.answer') : t('card.hero', { name: hero.name, chapter: hero.chapter }), 40, y + 6);
   band(ctx, 40, H - 168, 1000, c);
   const got = TROPHIES.filter((t) => st.trophies[t.id]).length, s = streak();
   ctx.fillStyle = c.fg; ctx.font = '500 26px "Alegreya Sans", sans-serif';
-  ctx.fillText('Trophies ' + got + ' of ' + TROPHIES.length + '  ·  Streak ' + s + (s === 1 ? ' day' : ' days') + '  ·  Hero: ' + hero.name, 40, H - 100);
+  ctx.fillText(t('card.footer', { g: got, m: TROPHIES.length, s: cnt(s, 'days'), h: hero.name }), 40, H - 100);
   ctx.fillStyle = c.muted; ctx.font = '500 24px "Alegreya Sans", sans-serif';
   ctx.fillText('the-sisyphus-timer.vercel.app', 40, H - 52);
 
   const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
-  if (!blob) { toast('This browser could not draw the card.'); return; }
+  if (!blob) { toast(t('card.fail')); return; }
   const file = new File([blob], 'my-sisyphus-myth.png', { type: 'image/png' });
   try {
     const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     if (touch && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'My Sisyphus myth' });
+      await navigator.share({ files: [file], title: t('card.shareTitle') });
       return;
     }
   } catch (e) {
     if (e && e.name === 'AbortError') return;
   }
   download('my-sisyphus-myth.png', blob);
-  toast('Card saved as my-sisyphus-myth.png.');
+  toast(t('card.saved', { f: 'my-sisyphus-myth.png' }));
 }

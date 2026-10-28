@@ -31,7 +31,7 @@ async function redis(commands) {
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
-const fail = (error, status = 400) => json({ error }, status);
+const fail = (error, status = 400, code = 'bad_request') => json({ error, code }, status);
 const roomKey = (code) => 'room:' + code;
 const sub = (room, part) => 'room:' + room.code + ':' + room.epoch + ':' + part;
 const touch = (k) => ['EXPIRE', k, TTL];
@@ -90,22 +90,22 @@ async function readRoom(code) {
 }
 
 export async function GET(request) {
-  if (!REDIS_URL || !REDIS_TOKEN) return fail('Class mode is not set up on this server.', 503);
+  if (!REDIS_URL || !REDIS_TOKEN) return fail('Class mode is not set up on this server.', 503, 'not_configured');
   try {
     const code = (new URL(request.url).searchParams.get('code') || '').toUpperCase();
-    if (!CODE_RE.test(code)) return fail('That room code is not valid.');
+    if (!CODE_RE.test(code)) return fail('That room code is not valid.', 400, 'bad_code');
     const room = await readRoom(code);
-    return room ? json(room) : fail('No class with that code. Check the code on the projector.', 404);
+    return room ? json(room) : fail('No class with that code. Check the code on the projector.', 404, 'not_found');
   } catch (e) {
-    return fail('The class server had a problem. Try again in a moment.', 500);
+    return fail('The class server had a problem. Try again in a moment.', 500, 'server');
   }
 }
 
 export async function POST(request) {
-  if (!REDIS_URL || !REDIS_TOKEN) return fail('Class mode is not set up on this server.', 503);
+  if (!REDIS_URL || !REDIS_TOKEN) return fail('Class mode is not set up on this server.', 503, 'not_configured');
   try {
     const raw = await request.text();
-    if (raw.length > 2000) return fail('Request too large.', 413);
+    if (raw.length > 2000) return fail('Request too large.', 413, 'too_large');
     let b;
     try { b = JSON.parse(raw); } catch { return fail('Bad request.'); }
     if (!b || typeof b !== 'object') return fail('Bad request.');
@@ -120,36 +120,36 @@ export async function POST(request) {
           return json({ code, hostKey });
         }
       }
-      return fail('Could not create a class right now. Try again.', 503);
+      return fail('Could not create a class right now. Try again.', 503, 'server');
     }
 
     const code = String(b.code || '').toUpperCase();
-    if (!CODE_RE.test(code)) return fail('That room code is not valid.');
+    if (!CODE_RE.test(code)) return fail('That room code is not valid.', 400, 'bad_code');
     const r = await loadRoom(code);
-    if (!r) return fail('No class with that code. Check the code on the projector.', 404);
+    if (!r) return fail('No class with that code. Check the code on the projector.', 404, 'not_found');
 
     if (b.action === 'round' || b.action === 'hide') {
-      if (typeof b.hostKey !== 'string' || b.hostKey !== r.host) return fail('Only the host can do that.', 403);
+      if (typeof b.hostKey !== 'string' || b.hostKey !== r.host) return fail('Only the host can do that.', 403, 'host_only');
       if (b.action === 'round') {
         const [n] = await redis([['HINCRBY', roomKey(code), 'round', 1], touch(roomKey(code))]);
         return json({ ok: true, round: Number(n) });
       }
       const k = String(b.key || '');
-      if (!/^[a-f0-9]{8}$/.test(k)) return fail('Bad answer key.');
+      if (!/^[a-f0-9]{8}$/.test(k)) return fail('Bad answer key.', 400, 'bad_key');
       await redis([['SADD', sub(r, 'hidden'), r.round + ':' + k], touch(sub(r, 'hidden'))]);
       return json({ ok: true });
     }
 
     const id = String(b.id || '');
-    if (!ID_RE.test(id)) return fail('Bad client id.');
+    if (!ID_RE.test(id)) return fail('Bad client id.', 400, 'bad_id');
 
     const net = await hash(network(request), 6);
     const rate = 'rl:' + code + ':' + net + ':' + Math.floor(Date.now() / 60000), devices = sub(r, 'net:' + net);
     const [hits, , added, count] = await redis([['INCR', rate], ['EXPIRE', rate, 120], ['SADD', devices, id], ['SCARD', devices]]);
-    if (Number(hits) > WRITES_PER_MINUTE) return fail('Too many requests from this network. Wait a minute and try again.', 429);
+    if (Number(hits) > WRITES_PER_MINUTE) return fail('Too many requests from this network. Wait a minute and try again.', 429, 'rate');
     if (Number(added) === 1 && Number(count) > DEVICES_PER_NETWORK) {
       await redis([['SREM', devices, id]]);
-      return fail('Too many devices from this network have joined this class.', 429);
+      return fail('Too many devices from this network have joined this class.', 429, 'devices');
     }
     const seen = [['ZADD', sub(r, 'people'), Date.now(), id], touch(sub(r, 'people')), touch(devices), touch(roomKey(code))];
 
@@ -159,10 +159,10 @@ export async function POST(request) {
     }
     if (b.action === 'vote') {
       const c = String(b.choice || '');
-      if (!CHOICES.includes(c)) return fail('Pick escape, hope or revolt.');
+      if (!CHOICES.includes(c)) return fail('Pick escape, hope or revolt.', 400, 'bad_choice');
       const vk = sub(r, 'v' + r.round);
       const [n, mine] = await redis([['HLEN', vk], ['HEXISTS', vk, id]]);
-      if (Number(n) >= 400 && Number(mine) !== 1) return fail('This round is full.', 429);
+      if (Number(n) >= 400 && Number(mine) !== 1) return fail('This round is full.', 429, 'full');
       await redis([['HSET', vk, id, JSON.stringify({ c, w: clean(b.why, 160), t: Date.now() })], touch(vk), ...seen]);
       return json({ ok: true, round: r.round });
     }
@@ -172,8 +172,8 @@ export async function POST(request) {
       await redis([['INCR', sub(r, 'boulders')], touch(sub(r, 'boulders')), ...seen]);
       return json({ ok: true });
     }
-    return fail('Unknown action.');
+    return fail('Unknown action.', 400, 'unknown');
   } catch (e) {
-    return fail('The class server had a problem. Try again in a moment.', 500);
+    return fail('The class server had a problem. Try again in a moment.', 500, 'server');
   }
 }
