@@ -1,0 +1,6 @@
+{
+  "name": "sisyphus-timer",
+  "private": true,
+  "type": "module",
+  "description": "A focus timer built on Albert Camus' The Myth of Sisyphus"
+}

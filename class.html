@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class · The Sisyphus Timer</title>
+<meta name="description" content="Put the timer on the projector. Classmates answer from their phones and the results appear live.">
+<meta name="theme-color" content="#c7683a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Marcellus&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="class">
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle class="mk" cx="20" cy="20" r="18"/><path class="mk-inc" d="M9 15L17 19L13 27M24 8L27 17L33 19M22 30L25 25"/></svg>
+      <span><span class="brand-name">The Sisyphus Timer</span><span class="sub">A focus timer built on Albert Camus&rsquo; <cite>The Myth of Sisyphus</cite></span></span>
+    </a>
+    <div class="top-actions"><a class="run-pill" id="runPill" href="./" hidden></a><span class="chip" id="moodChip">Sisyphus is <b>lucid</b></span></div>
+  </header>
+  <nav class="nav" aria-label="Pages"><ul>
+    <li><a href="./">Timer</a></li>
+    <li><a href="heroes.html">Heroes</a></li>
+    <li><a href="journal.html">Inscriptions</a></li>
+    <li><a href="progress.html">Trophies</a></li>
+    <li><a href="idea.html">The idea</a></li>
+    <li><a href="worldviews.html">Worldviews</a></li>
+    <li><a href="class.html" aria-current="page">Class</a></li>
+  </ul></nav>
+
+  <section id="classChoose" class="class-choose" aria-labelledby="classH">
+    <header class="page-head">
+      <h1 class="page-title" id="classH">Class mode</h1>
+      <p class="lede">Put the timer on the projector. Classmates join from their phones, answer &ldquo;why are you pushing it?&rdquo;, and the results appear live. No accounts, no names.</p>
+    </header>
+    <div class="class-split">
+      <section>
+        <h2 class="step-t">Host a class</h2>
+        <p class="small">On the presenter&rsquo;s laptop, connected to the projector.</p>
+        <button class="btn primary" id="hostBtn" type="button">Start a class</button>
+        <button class="btn" id="resumeHost" type="button" hidden>Return to class</button>
+      </section>
+      <form id="joinForm">
+        <h2 class="step-t">Join a class</h2>
+        <label class="small" for="joinCode">The 4-letter code on the projector</label>
+        <div class="join-row"><input id="joinCode" type="text" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KTRM"><button class="btn primary" type="submit">Join</button></div>
+      </form>
+    </div>
+    <p class="note" id="classErr" role="alert"></p>
+    <h2 class="label-h">How it works</h2>
+    <ol class="steps">
+      <li><span class="num">I</span><div><h3 class="step-t">The presenter starts a class</h3><p>A QR code and a 4-letter code appear, big enough for the back row.</p></div></li>
+      <li><span class="num">II</span><div><h3 class="step-t">Everyone answers on their phone</h3><p>One question, Camus&rsquo; three answers, and an optional sentence. No names are collected.</p></div></li>
+      <li><span class="num">III</span><div><h3 class="step-t">The room sees itself</h3><p>The projector shows the split between escape, hope and revolt, with the written answers. The presenter can hide any answer and start a new round.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="classStudent" class="student" hidden aria-labelledby="stQ">
+    <p class="eyebrow" id="stInfo">Class · Round 1</p>
+    <h1 class="page-title" id="stQ">Why are you pushing it?</h1>
+    <textarea id="stWhy" rows="3" maxlength="160" aria-labelledby="stQ" placeholder="One honest sentence. It goes on the projector without your name."></textarea>
+    <fieldset class="choices">
+      <legend class="eyebrow">How do you face the rock?</legend>
+      <label class="opt"><input type="radio" name="cresp" value="escape" id="cEscape"><b>Look away</b><span>Scroll, nap, quit. Act like the question never came up.</span></label>
+      <label class="opt"><input type="radio" name="cresp" value="hope" id="cHope"><b>Hope it pays off</b><span>It will all make sense later: the diploma, the job, the life after.</span></label>
+      <label class="opt"><input type="radio" name="cresp" value="revolt" id="cRevolt"><b>Push anyway</b><span>No promise that any of it means something. You push with your eyes open, and the effort is yours.</span></label>
+    </fieldset>
+    <div class="verdict" id="stVerdict" hidden aria-live="polite"><q id="stQuote"></q><p id="stNote"></p><div id="stAllies"></div></div>
+    <div class="controls left">
+      <button class="btn primary" id="stSend" type="button" disabled>Send to the projector</button>
+      <a class="btn" href="./">Open the timer</a>
+      <button class="btn ghost" id="stLeave" type="button">Leave the class</button>
+    </div>
+    <p class="note" id="stStatus" role="status"></p>
+  </section>
+
+  <section id="board" class="board" hidden aria-label="Class results">
+    <header class="host-top">
+      <div><p class="eyebrow">Class mode · Round <span id="hRound">1</span></p><h1 class="page-title">Why are you pushing it?</h1></div>
+      <div class="host-actions">
+        <button class="btn sm" id="hShow" type="button">Hide answers</button>
+        <button class="btn sm" id="hRoundBtn" type="button">New round</button>
+        <button class="btn sm" id="hFull" type="button">Fullscreen</button>
+        <button class="btn sm" id="hEnd" type="button">End class</button>
+      </div>
+    </header>
+    <div class="host-grid">
+      <div class="join-card">
+        <div class="qr" id="qr"></div>
+        <p>Scan, or open</p>
+        <b class="join-url" id="hUrl"></b>
+        <p>and enter the code</p>
+        <b class="code" id="hCode">ABCD</b>
+      </div>
+      <div class="results">
+        <div class="bars" id="hBars"></div>
+        <p class="verdict-line" id="hVerdict">Waiting for the first answers.</p>
+        <div class="host-stats">
+          <span><b id="hPeople">0</b> here now</span>
+          <span><b id="hVotes">0</b> answers</span>
+          <span><b id="hBoulders">0</b> class boulders</span>
+        </div>
+        <p class="note" id="hErr" role="alert"></p>
+      </div>
+    </div>
+    <ul class="wall" id="hWall"></ul>
+  </section>
+
+  <footer>Class answers are kept for at most 12 hours and never include names.</footer>
+</div>
+<p class="toast floating" id="toast" role="status" aria-live="polite"></p>
+<p class="sr-only" id="sr" aria-live="assertive"></p>
+<script type="module" src="js/pages.js"></script>
+</body>
+</html>

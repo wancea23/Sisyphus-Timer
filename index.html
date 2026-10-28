@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Sisyphus Timer</title>
+<meta name="description" content="A focus timer built on Albert Camus' The Myth of Sisyphus. Push the boulder, scorn the gods, and answer why you keep pushing.">
+<meta property="og:title" content="The Sisyphus Timer">
+<meta property="og:description" content="A focus timer built on Albert Camus' The Myth of Sisyphus. Push the boulder, scorn the gods, and answer why you keep pushing.">
+<meta name="theme-color" content="#c7683a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Marcellus&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="timer">
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle class="mk" cx="20" cy="20" r="18"/><path class="mk-inc" d="M9 15L17 19L13 27M24 8L27 17L33 19M22 30L25 25"/></svg>
+      <span><span class="brand-name">The Sisyphus Timer</span><span class="sub">A focus timer built on Albert Camus&rsquo; <cite>The Myth of Sisyphus</cite></span></span>
+    </a>
+    <div class="top-actions"><span class="chip" id="moodChip">Sisyphus is <b>lucid</b></span></div>
+  </header>
+  <nav class="nav" aria-label="Pages"><ul>
+    <li><a href="./" aria-current="page">Timer</a></li>
+    <li><a href="heroes.html">Heroes</a></li>
+    <li><a href="journal.html">Inscriptions</a></li>
+    <li><a href="progress.html">Trophies</a></li>
+    <li><a href="idea.html">The idea</a></li>
+    <li><a href="worldviews.html">Worldviews</a></li>
+    <li><a href="class.html">Class</a></li>
+  </ul></nav>
+  <h1 class="sr-only">Timer</h1>
+
+  <div class="class-bar" id="classBar" hidden>
+    <span>In class <b id="cbCode">ABCD</b>. Your answers can go to the projector, without your name.</span>
+    <a class="btn sm primary" href="class.html">Open the class page</a>
+  </div>
+
+  <section class="frieze" aria-label="The mountain">
+    <div class="band"><i></i></div>
+    <div class="stage">
+      <svg id="scene" viewBox="0 0 1000 360" role="img" aria-labelledby="sceneT sceneD">
+        <title id="sceneT">Sisyphus and the boulder</title>
+        <desc id="sceneD">While the timer runs, the hero pushes a boulder up the mountain. When it ends, the boulder rolls back down and the hero walks down after it during the break.</desc>
+        <defs>
+          <mask id="crescent" maskUnits="userSpaceOnUse" x="-30" y="-30" width="60" height="60">
+            <circle r="17" fill="#fff"/>
+            <circle cx="8" cy="-6" r="15" fill="#000"/>
+          </mask>
+        </defs>
+        <rect class="sky" width="1000" height="360"/>
+        <rect id="night" class="night" width="1000" height="360" opacity="0"/>
+        <g id="stars" class="stars" style="opacity:0"></g>
+        <g id="sun" class="sun" transform="translate(81 96)">
+          <circle r="19"/>
+          <line x1="0" y1="-26" x2="0" y2="-33"/><line x1="0" y1="26" x2="0" y2="33"/>
+          <line x1="-26" y1="0" x2="-33" y2="0"/><line x1="26" y1="0" x2="33" y2="0"/>
+          <line x1="18.4" y1="18.4" x2="23.3" y2="23.3"/><line x1="-18.4" y1="-18.4" x2="-23.3" y2="-23.3"/>
+          <line x1="18.4" y1="-18.4" x2="23.3" y2="-23.3"/><line x1="-18.4" y1="18.4" x2="-23.3" y2="23.3"/>
+        </g>
+        <g id="moon" class="moon" style="opacity:0" transform="translate(92 92)"><circle r="17" mask="url(#crescent)"/></g>
+        <path class="mount" d="M0 360V330H220L840 120H1000V360Z"/>
+        <g class="strata">
+          <path d="M0 364H220L840 154H1000"/>
+          <path d="M0 402H220L840 192H1000"/>
+          <path d="M0 442H220L840 232H1000"/>
+          <path d="M0 484H220L840 274H1000"/>
+          <path d="M0 528H220L840 318H1000"/>
+        </g>
+        <path class="bolt" d="M560 0L528 70H556L512 168L590 52H560L590 0Z"/>
+        <g id="boulder" transform="translate(180 284)">
+          <circle class="b" r="46"/>
+          <circle class="b-ring" r="39"/>
+          <path class="b-inc" d="M-22-30L-8-12L-15 4L1 22M14-37L20-16L35-9M-37 9L-19 17L-24 33M8 8L22 14L26 30"/>
+          <path class="b-inc" id="marks" d=""/>
+        </g>
+        <g id="fig"></g>
+        <text id="label" class="label" x="40" y="200">ΣΙΣΥΦΟΣ</text>
+      </svg>
+      <aside class="god" id="god" hidden aria-label="A god tempts you">
+        <div class="god-head"><span class="god-gr" id="godGr">ΕΡΜΗΣ</span><span class="god-who" id="godWho">Hermes, messenger of the gods</span></div>
+        <p class="god-line" id="godLine"></p>
+        <div class="god-bar"><i id="godBar"></i></div>
+        <div class="god-actions"><button class="btn sm primary" id="scorn" type="button">Scorn</button><button class="btn sm" id="yield" type="button">Give in</button></div>
+      </aside>
+    </div>
+    <div class="band lower"><i></i></div>
+  </section>
+
+  <section class="console" aria-label="Timer">
+    <p class="phase" id="phase">At the foot of the mountain · Boulder 1</p>
+    <div class="timer" id="timer" role="timer" aria-live="off">25:00</div>
+    <div class="breath" id="breath" hidden><span class="ring" id="breathRing" aria-hidden="true"></span><span class="breath-label" id="breathLabel">Breathe in</span></div>
+    <p class="quote" id="quote"></p>
+    <p class="prompt" id="prompt" hidden></p>
+    <p class="voice" id="voice" hidden></p>
+    <div class="task-row" id="taskRow">
+      <label for="task">Name your boulder</label>
+      <input id="task" type="text" maxlength="60" autocomplete="off" placeholder="Optional, like &ldquo;Chapter 4 exercises&rdquo;">
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="primary" type="button">Push the boulder</button>
+      <button class="btn" id="secondary" type="button" hidden>Abandon</button>
+      <button class="btn ghost" id="openSettings" type="button">Settings</button>
+    </div>
+    <p class="toast" id="toast" role="status" aria-live="polite"></p>
+    <p class="sr-only" id="sr" aria-live="assertive"></p>
+    <p class="hint"><kbd>Space</kbd> starts and pauses · <kbd>S</kbd> scorns a god · <kbd>Y</kbd> gives in</p>
+  </section>
+
+  <section class="stats" aria-label="Your myth so far">
+    <div class="stat"><span class="k">Boulders</span><span class="v" id="sBoulders">0</span><span class="n">pushed to the top</span></div>
+    <div class="stat"><span class="k">On the mountain</span><span class="v" id="sTime">0 min</span><span class="n">of focused pushing</span></div>
+    <div class="stat"><span class="k">Gods scorned</span><span class="v" id="sScorn">0</span><span class="n" id="sScornN">Gave in 0 times</span></div>
+    <div class="stat"><span class="k">Is Sisyphus happy?</span><span class="v" id="sMood">Lucid</span><div class="meter" aria-hidden="true"><i id="meter"></i></div></div>
+  </section>
+
+  <footer>Camus quotations from <cite>The Myth of Sisyphus</cite> (1942), translated by Justin O&rsquo;Brien (1955). New here? Start with <a href="idea.html">The idea</a>.</footer>
+</div>
+
+<dialog id="reflect" aria-labelledby="reflectH">
+  <div class="dlg">
+    <p class="eyebrow" id="reflectNo">Boulder 1 is back at the bottom</p>
+    <h2 id="reflectH">Why are you pushing it?</h2>
+    <textarea id="why" rows="3" maxlength="500" aria-labelledby="reflectH" placeholder="Write the honest answer, even if it is &ldquo;because I have to.&rdquo;"></textarea>
+    <fieldset class="choices">
+      <legend class="eyebrow">How do you face the rock this time?</legend>
+      <label class="opt"><input type="radio" name="resp" value="escape" id="rEscape"><b>Look away</b><span>Scroll, nap, quit. Act like the question never came up.</span></label>
+      <label class="opt"><input type="radio" name="resp" value="hope" id="rHope"><b>Hope it pays off</b><span>It will all make sense later: the diploma, the job, the life after.</span></label>
+      <label class="opt"><input type="radio" name="resp" value="revolt" id="rRevolt"><b>Push anyway</b><span>No promise that any of it means something. You push with your eyes open, and the effort is yours.</span></label>
+    </fieldset>
+    <div class="verdict" id="verdict" hidden aria-live="polite"><q id="vQuote"></q><p id="vNote"></p><div id="allies"></div></div>
+    <label class="share-row" id="shareRow" hidden><input type="checkbox" id="shareClass" checked> <span id="shareLabel">Also send my answer to the class</span></label>
+    <div class="dlg-actions">
+      <button class="btn" id="skipDescent" type="button" disabled>Skip the descent</button>
+      <button class="btn primary" id="descend" type="button" disabled>Begin the descent</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="settings" aria-labelledby="settingsH">
+  <div class="dlg">
+    <h2 id="settingsH">Settings</h2>
+    <fieldset class="presets">
+      <legend class="eyebrow">Session length</legend>
+      <label class="opt"><input type="radio" name="preset" value="classic" id="pClassic"><b>Classic</b><span>25 min push, 5 min descent</span></label>
+      <label class="opt"><input type="radio" name="preset" value="deep" id="pDeep"><b>Deep work</b><span>50 min push, 10 min descent</span></label>
+      <label class="opt"><input type="radio" name="preset" value="demo" id="pDemo"><b>Class demo</b><span>30 s push, 15 s descent. Unlocks every hero for presenting.</span></label>
+      <label class="opt"><input type="radio" name="preset" value="custom" id="pCustom"><b>Custom</b><span>Set your own lengths below</span></label>
+    </fieldset>
+    <div class="custom" id="customRow">
+      <label for="cWork">Push, minutes<input type="number" id="cWork" min="1" max="180" step="1" inputmode="numeric"></label>
+      <label for="cBrk">Descent, minutes<input type="number" id="cBrk" min="1" max="60" step="1" inputmode="numeric"></label>
+    </div>
+    <p class="note" id="settingsNote" hidden>New lengths apply from the next boulder.</p>
+    <fieldset class="toggles">
+      <legend class="eyebrow">The mountain</legend>
+      <label class="opt"><input type="checkbox" id="tGods"><b>Temptations of the gods</b><span>Distractions show up mid-session. Scorn them or give in.</span></label>
+      <label class="opt"><input type="checkbox" id="tStrict"><b>Strict mode</b><span>The boulder slips back if you leave this tab while pushing.</span></label>
+      <label class="opt"><input type="checkbox" id="tBreathe"><b>Breathing guide</b><span>A slow breathing ring during the descent.</span></label>
+      <label class="opt"><input type="checkbox" id="tSound"><b>Sound</b><span>Lyre notes, and a rumble when the rock falls.</span></label>
+      <label class="opt"><input type="checkbox" id="tAmb"><b>Ambience</b><span>Wind, cicadas and a distant lyre while the timer runs. Needs Sound.</span></label>
+    </fieldset>
+    <div class="dlg-actions spread">
+      <button class="btn" id="erase" type="button">Erase the myth</button>
+      <button class="btn primary" id="closeSettings" type="button">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
