@@ -1,18 +1,20 @@
 /* Class mode. The core (join, heartbeat, votes, boulders) also runs on the timer page.
-   The class page adds the presenter's board (QR code, live results, export) and the student's answer form. */
+   The class page adds the presenter's board (QR code, live results, export) and the student's answer form.
+   A room is either about the rock (escape / hope / revolt) or running the worldview test; the host switches between them. */
 import { store, clientId } from './store.js';
 import { $, $$, esc, toast, copyText, download } from './ui.js';
-import { RESP, CLASS_VERDICT } from './data.js';
+import { RESP, CLASS_VERDICT, PANEL, WORLDVIEW } from './data.js';
 import { t, quoted } from './i18n.js';
 import { unlock, alliesHTML } from './features.js';
+import { runQuiz, resultHTML } from './quiz.js';
 
 const API = '/api/room';
 const CODE_RE = /^[A-HJ-NP-Z]{4}$/;
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
-const ORDER = ['revolt', 'hope', 'escape'];
+const ROCK = ['revolt', 'hope', 'escape'];
 const remembered = store.get('joined', null);
-export const room = { code: CODE_RE.test(remembered || '') ? remembered : null, round: 1, beat: 0 };
-const host = { code: null, key: null, poll: 0, showAnswers: true, last: null };
+export const room = { code: CODE_RE.test(remembered || '') ? remembered : null, round: 1, mode: 'rock', beat: 0 };
+const host = { code: null, key: null, poll: 0, showAnswers: true, mode: 'rock', last: null };
 
 async function call(body, query) {
   let res;
@@ -37,7 +39,7 @@ export async function join(code) {
   code = String(code || '').trim().toUpperCase();
   if (!CODE_RE.test(code)) throw new Error(t('cls.badCode'));
   const r = await call({ action: 'hello', code, id: clientId() });
-  room.code = code; room.round = r.round; store.set('joined', code);
+  room.code = code; room.round = r.round; room.mode = r.mode || 'rock'; store.set('joined', code);
   unlock(['chorus']);
   return r;
 }
@@ -57,7 +59,7 @@ export function heartbeat(ms, onChange) {
     call({ action: 'hello', code: room.code, id: clientId() })
       .then((r) => {
         const changed = r.round !== room.round;
-        room.round = r.round;
+        room.round = r.round; room.mode = r.mode || 'rock';
         if (onChange && (first || changed)) onChange(r.round, first);
         first = false;
       })
@@ -94,21 +96,37 @@ function showChooser(msg) {
 }
 
 /* Student */
+const studentInfo = () => t('cls.info', { code: room.code, r: room.round }) + (room.mode === 'test' ? t('cls.infoTest') : '');
+function startTest() {
+  runQuiz($('#stQuiz'), async (score) => {
+    $('#stQuiz').innerHTML = resultHTML(score) + '<div class="controls left"><button class="btn ghost" id="stRetake" type="button">' + t('quiz.again') + '</button></div>';
+    $('#stRetake').addEventListener('click', () => { $('#stStatus').textContent = ''; startTest(); });
+    if (await sendVote(score.top, '')) $('#stStatus').textContent = t('cls.testSent');
+  });
+}
 function resetStudentForm() {
+  $('#stInfo').textContent = studentInfo();
+  $('#stRock').hidden = room.mode === 'test'; $('#stTest').hidden = room.mode !== 'test';
+  $('#stStatus').textContent = '';
+  if (room.mode === 'test') { startTest(); return; }
   $('#stWhy').value = '';
   $$('input[name=cresp]').forEach((r) => { r.checked = false; });
-  $('#stVerdict').hidden = true; $('#stSend').disabled = true; $('#stStatus').textContent = '';
+  $('#stVerdict').hidden = true; $('#stSend').disabled = true;
 }
 function showStudent() {
   show('#classStudent');
-  $('#stInfo').textContent = t('cls.info', { code: room.code, r: room.round });
   resetStudentForm();
+  let shown = room.mode;
   heartbeat(15000, (round, initial) => {
     if (round === null) { showChooser(t('cls.ended')); return; }
-    $('#stInfo').textContent = t('cls.info', { code: room.code, r: round });
-    if (initial) return;
+    /* The first sync only redraws when the remembered mode was out of date, so an answer already started is kept. */
+    if (initial) {
+      if (room.mode !== shown) { shown = room.mode; resetStudentForm(); } else $('#stInfo').textContent = studentInfo();
+      return;
+    }
+    shown = room.mode;
     resetStudentForm();
-    toast(t('cls.newRound'));
+    toast(t(room.mode === 'test' ? 'cls.testNow' : 'cls.newRound'));
   });
 }
 async function joinAndShow(code) {
@@ -137,28 +155,45 @@ export async function drawQr(box, url, label) {
     '" height="' + (n + 4) + '" class="qr-bg"/><path d="' + d + '" class="qr-fg"/></svg>';
 }
 
-const totalOf = (data) => data.counts.escape + data.counts.hope + data.counts.revolt;
-function verdictOf(data) {
-  const total = totalOf(data);
+/* Rock rounds count escape / hope / revolt; test rounds count the seven worldviews. */
+const optionsOf = (d) => (d.mode === 'test' ? PANEL.map((p) => p.id) : ROCK);
+const thinker = (id) => PANEL.find((p) => p.id === id);
+const labelOf = (d, id) => (d.mode === 'test' ? thinker(id).short : RESP[id].tag);
+const totalOf = (d) => optionsOf(d).reduce((n, id) => n + (d.counts[id] || 0), 0);
+function verdictOf(d) {
+  const total = totalOf(d);
+  if (d.mode === 'test') {
+    if (!total) return t('cls.testWaiting');
+    const most = Math.max(...optionsOf(d).map((id) => d.counts[id] || 0)), tops = PANEL.filter((p) => (d.counts[p.id] || 0) === most);
+    if (tops.length > 1) return t('cls.testSplit', { names: tops.map((p) => p.short).join(t('cls.and')) });
+    return t('cls.testTop', { name: tops[0].name, foe: thinker(WORLDVIEW[tops[0].id].rival).name });
+  }
   if (!total) return CLASS_VERDICT.none;
-  const top = ORDER.slice().sort((a, b) => data.counts[b] - data.counts[a])[0];
-  return ORDER.filter((c) => data.counts[c] === data.counts[top]).length > 1 ? t('cls.tie') : CLASS_VERDICT[top];
+  const top = ROCK.slice().sort((a, b) => d.counts[b] - d.counts[a])[0];
+  return ROCK.filter((c) => d.counts[c] === d.counts[top]).length > 1 ? t('cls.tie') : CLASS_VERDICT[top];
 }
 
 function renderBoard(data) {
   host.last = data;
-  const total = totalOf(data);
+  const test = data.mode === 'test', total = totalOf(data);
+  host.mode = test ? 'test' : 'rock';
+  $('#hTitle').textContent = t(test ? 'cls.titleTest' : 'cls.titleRock');
+  $('#hMode').textContent = t(test ? 'cls.modeRock' : 'cls.modeTest');
+  $('#hBars').classList.toggle('seven', test);
+  $('#hVotesL').textContent = t(test ? 'cls.votesResults' : 'cls.votesAnswers');
+  $('#hShow').hidden = test;
   $('#hRound').textContent = data.round;
   $('#hPeople').textContent = data.people;
   $('#hVotes').textContent = total;
   $('#hBoulders').textContent = data.boulders;
-  $('#hBars').innerHTML = ORDER.map((c) => {
-    const n = data.counts[c], pct = total ? Math.round((n / total) * 100) : 0;
-    return '<div class="bar-row ' + c + '"><span class="bl">' + RESP[c].tag + '</span><div class="track"><i style="width:' + pct + '%"></i></div><span class="bn">' + n + ' · ' + pct + '%</span></div>';
+  $('#hBars').innerHTML = optionsOf(data).map((c) => {
+    const n = data.counts[c] || 0, pct = total ? Math.round((n / total) * 100) : 0, cls = test ? thinker(c).stance : c;
+    return '<div class="bar-row ' + cls + '"><span class="bl">' + esc(labelOf(data, c)) + '</span><div class="track"><i style="width:' + pct + '%"></i></div><span class="bn">' + n + ' · ' + pct + '%</span></div>';
   }).join('');
   $('#hVerdict').textContent = verdictOf(data);
   const wall = $('#hWall');
-  wall.hidden = !host.showAnswers;
+  wall.hidden = test || !host.showAnswers;
+  if (test) return;
   wall.innerHTML = data.answers.length
     ? data.answers.map((a) => '<li class="note-card ' + a.c + '"><span class="tag ' + a.c + '">' + RESP[a.c].tag + '</span><p>' + esc(quoted(a.w)) + '</p>' +
       '<button type="button" class="hide-btn" data-k="' + esc(a.k) + '" aria-label="' + t('cls.hideAria') + '">' + t('cls.hide') + '</button></li>').join('')
@@ -167,10 +202,10 @@ function renderBoard(data) {
 
 function summaryText(d) {
   const total = totalOf(d);
-  const lines = [t('cls.sum', { code: d.code, r: d.round, n: total, p: d.people })];
-  ORDER.forEach((c) => lines.push(t('cls.sumLine', { tag: RESP[c].tag, n: d.counts[c], pct: total ? Math.round((d.counts[c] / total) * 100) : 0 })));
+  const lines = [t(d.mode === 'test' ? 'cls.sumTest' : 'cls.sum', { code: d.code, r: d.round, n: total, p: d.people })];
+  optionsOf(d).forEach((c) => lines.push(t('cls.sumLine', { tag: labelOf(d, c), n: d.counts[c] || 0, pct: total ? Math.round(((d.counts[c] || 0) / total) * 100) : 0 })));
   lines.push(verdictOf(d));
-  if (d.answers.length) {
+  if (d.mode !== 'test' && d.answers.length) {
     lines.push('', t('cls.sumAnswers'));
     d.answers.forEach((a) => lines.push('- [' + RESP[a.c].tag + '] ' + quoted(a.w)));
   }
@@ -179,9 +214,11 @@ function summaryText(d) {
 function csvOf(d) {
   const cell = (s) => { s = String(s); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = [[t('csv.class'), d.code], [t('csv.round'), d.round], [t('csv.people'), d.people], [t('csv.answers'), totalOf(d)]];
-  ORDER.forEach((c) => rows.push([RESP[c].tag, d.counts[c]]));
-  rows.push([], t('csv.head').split(','));
-  d.answers.forEach((a) => rows.push([RESP[a.c].tag, a.w, new Date(a.t).toISOString()]));
+  optionsOf(d).forEach((c) => rows.push([labelOf(d, c), d.counts[c] || 0]));
+  if (d.mode !== 'test') {
+    rows.push([], t('csv.head').split(','));
+    d.answers.forEach((a) => rows.push([RESP[a.c].tag, a.w, new Date(a.t).toISOString()]));
+  }
   return '﻿' + rows.map((r) => r.map(cell).join(',')).join('\r\n');
 }
 
@@ -242,6 +279,16 @@ export function initClassPage() {
     host.showAnswers = !host.showAnswers;
     $('#hShow').textContent = t(host.showAnswers ? 'cls.hideAnswers' : 'cls.showAnswers');
     $('#hWall').hidden = !host.showAnswers;
+  });
+  $('#hMode').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    btn.disabled = true;
+    try {
+      const r = await call({ action: 'mode', code: host.code, hostKey: host.key, mode: host.mode === 'test' ? 'rock' : 'test' });
+      toast(t(r.mode === 'test' ? 'cls.testStarted' : 'cls.rockAgain'));
+      pollBoard();
+    } catch (e) { $('#hErr').textContent = e.message; }
+    finally { btn.disabled = false; }
   });
   $('#hRoundBtn').addEventListener('click', async (ev) => {
     const btn = ev.currentTarget;

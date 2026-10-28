@@ -18,6 +18,7 @@ if (page === 'heroes') {
   });
 } else if (page === 'worldviews') {
   renderPanel();
+  import('./quiz.js').then((m) => m.initWorldviewTest());
 } else if (page === 'class') {
   import('./classroom.js').then((m) => m.initClassPage());
 }

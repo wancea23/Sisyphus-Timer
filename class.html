@@ -70,32 +70,41 @@
       <li><span class="num">I</span><div><h3 class="step-t">The presenter starts a class</h3><p>A QR code and a 4-letter code appear, big enough for the back row.</p></div></li>
       <li><span class="num">II</span><div><h3 class="step-t">Everyone answers on their phone</h3><p>One question, Camus&rsquo; three answers, and an optional sentence. No names are collected.</p></div></li>
       <li><span class="num">III</span><div><h3 class="step-t">The room sees itself</h3><p>The projector shows the split between escape, hope and revolt, with the written answers. The presenter can hide any answer and start a new round.</p></div></li>
+      <li><span class="num">IV</span><div><h3 class="step-t">Or take the worldview test together</h3><p>The presenter switches the room to the test. Everyone answers seven situations on their phone, and the projector shows which of the seven worldviews the class sounds like.</p></div></li>
     </ol>
   </section>
 
-  <section id="classStudent" class="student" hidden aria-labelledby="stQ">
+  <section id="classStudent" class="student" hidden aria-label="Your answer">
     <p class="eyebrow" id="stInfo">Class · Round 1</p>
-    <h1 class="page-title" id="stQ">Why are you pushing it?</h1>
-    <textarea id="stWhy" rows="3" maxlength="160" aria-labelledby="stQ" placeholder="One honest sentence. It goes on the projector without your name."></textarea>
-    <fieldset class="choices">
-      <legend class="eyebrow">How do you face the rock?</legend>
-      <label class="opt"><input type="radio" name="cresp" value="escape" id="cEscape"><b>Look away</b><span>Scroll, nap, quit. Act like the question never came up.</span></label>
-      <label class="opt"><input type="radio" name="cresp" value="hope" id="cHope"><b>Hope it pays off</b><span>It will all make sense later: the diploma, the job, the life after.</span></label>
-      <label class="opt"><input type="radio" name="cresp" value="revolt" id="cRevolt"><b>Push anyway</b><span>No promise that any of it means something. You push with your eyes open, and the effort is yours.</span></label>
-    </fieldset>
-    <div class="verdict" id="stVerdict" hidden aria-live="polite"><q id="stQuote"></q><p id="stNote"></p><div id="stAllies"></div></div>
+    <div class="student-part" id="stRock">
+      <h1 class="page-title" id="stQ">Why are you pushing it?</h1>
+      <textarea id="stWhy" rows="3" maxlength="160" aria-labelledby="stQ" placeholder="One honest sentence. It goes on the projector without your name."></textarea>
+      <fieldset class="choices">
+        <legend class="eyebrow">How do you face the rock?</legend>
+        <label class="opt"><input type="radio" name="cresp" value="escape" id="cEscape"><b>Look away</b><span>Scroll, nap, quit. Act like the question never came up.</span></label>
+        <label class="opt"><input type="radio" name="cresp" value="hope" id="cHope"><b>Hope it pays off</b><span>It will all make sense later: the diploma, the job, the life after.</span></label>
+        <label class="opt"><input type="radio" name="cresp" value="revolt" id="cRevolt"><b>Push anyway</b><span>No promise that any of it means something. You push with your eyes open, and the effort is yours.</span></label>
+      </fieldset>
+      <div class="verdict" id="stVerdict" hidden aria-live="polite"><q id="stQuote"></q><p id="stNote"></p><div id="stAllies"></div></div>
+      <div class="controls left"><button class="btn primary" id="stSend" type="button" disabled>Send to the projector</button></div>
+    </div>
+    <div class="student-part" id="stTest" hidden>
+      <h1 class="page-title">Who would push your rock?</h1>
+      <p class="small">Seven situations from student life. Your result goes to the projector, without your name.</p>
+      <div id="stQuiz" aria-live="polite"></div>
+    </div>
+    <p class="note" id="stStatus" role="status"></p>
     <div class="controls left">
-      <button class="btn primary" id="stSend" type="button" disabled>Send to the projector</button>
       <a class="btn" href="./">Open the timer</a>
       <button class="btn ghost" id="stLeave" type="button">Leave the class</button>
     </div>
-    <p class="note" id="stStatus" role="status"></p>
   </section>
 
   <section id="board" class="board" hidden aria-label="Class results">
     <header class="host-top">
-      <div><p class="eyebrow">Class mode · Round <span id="hRound">1</span></p><h1 class="page-title">Why are you pushing it?</h1></div>
+      <div><p class="eyebrow">Class mode · Round <span id="hRound">1</span></p><h1 class="page-title" id="hTitle">Why are you pushing it?</h1></div>
       <div class="host-actions">
+        <button class="btn sm" id="hMode" type="button">Worldview test</button>
         <button class="btn sm" id="hShow" type="button">Hide answers</button>
         <button class="btn sm" id="hRoundBtn" type="button">New round</button>
         <button class="btn sm" id="hFull" type="button">Fullscreen</button>
@@ -117,7 +126,7 @@
         <p class="verdict-line" id="hVerdict">Waiting for the first answers.</p>
         <div class="host-stats">
           <span><b id="hPeople">0</b> here now</span>
-          <span><b id="hVotes">0</b> answers</span>
+          <span><b id="hVotes">0</b> <span id="hVotesL">answers</span></span>
           <span><b id="hBoulders">0</b> class boulders</span>
         </div>
         <p class="note" id="hErr" role="alert"></p>

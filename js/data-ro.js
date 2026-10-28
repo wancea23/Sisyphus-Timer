@@ -71,21 +71,21 @@ export const STANCES = {
 };
 
 export const PANEL = [
-  { id: 'camus', name: 'Albert Camus', school: 'Absurdism', stance: 'revolt', quote: 'Trebuie să ni-l închipuim pe Sisif fericit.',
+  { id: 'camus', short: 'Camus', name: 'Albert Camus', school: 'Absurdism', stance: 'revolt', quote: 'Trebuie să ni-l închipuim pe Sisif fericit.',
     source: 'Mitul lui Sisif, 1942', says: 'Împinge oricum, cu ochii deschiși. Lupta e de ajuns și nu e nevoie de alt motiv.' },
-  { id: 'nietzsche', name: 'Friedrich Nietzsche', school: 'Amor fati', stance: 'revolt',
+  { id: 'nietzsche', short: 'Nietzsche', name: 'Friedrich Nietzsche', school: 'Amor fati', stance: 'revolt',
     quote: 'Formula mea pentru măreția omului este amor fati: să nu vrei nimic altfel, nici înainte, nici înapoi, în toată veșnicia.',
     source: 'Ecce Homo, 1888', says: 'Ai împinge exact stânca asta din nou, la nesfârșit? Atunci iubește-o, fiecare pas.' },
-  { id: 'kierkegaard', name: 'Søren Kierkegaard', school: 'Existențialism creștin', stance: 'hope', quote: 'Fără risc nu există credință.',
+  { id: 'kierkegaard', short: 'Kierkegaard', name: 'Søren Kierkegaard', school: 'Existențialism creștin', stance: 'hope', quote: 'Fără risc nu există credință.',
     source: 'Post-scriptum final neștiințific, 1846', says: 'Sensul se află dincolo de munte și ajungi la el printr-un salt al credinței. Camus numește asta saltul și îl refuză.' },
-  { id: 'marcus', name: 'Marcus Aurelius', school: 'Stoicism', stance: 'accept', quote: 'Piedica din calea acțiunii împinge acțiunea înainte. Ce stă în cale devine calea.',
+  { id: 'marcus', short: 'Marcus', name: 'Marcus Aurelius', school: 'Stoicism', stance: 'accept', quote: 'Piedica din calea acțiunii împinge acțiunea înainte. Ce stă în cale devine calea.',
     source: 'Meditații 5.20', says: 'Stânca nu îți stă în cale. Ea este calea. Fă-ți partea bine și lasă rezultatul în pace.' },
-  { id: 'epicurus', name: 'Epicur', school: 'Epicureism', stance: 'escape', quote: 'Trăiește neobservat.',
+  { id: 'epicurus', short: 'Epicur', name: 'Epicur', school: 'Epicureism', stance: 'escape', quote: 'Trăiește neobservat.',
     source: 'Fragment, transmis de Plutarh', says: 'De ce să urci pentru glorie? Ține-ți nevoile mici, prietenii aproape și evită durerea inutilă.' },
-  { id: 'confucius', name: 'Confucius', school: 'Confucianism', stance: 'duty',
+  { id: 'confucius', short: 'Confucius', name: 'Confucius', school: 'Confucianism', stance: 'duty',
     quote: 'Dacă mai lipsește un singur coș de pământ ca să termin lucrarea și mă opresc, oprirea este fapta mea.',
     source: 'Analecte 9.18', says: 'Învățatul e ca ridicarea unei movile, coș cu coș. Fiecare coș contează, iar oprirea e alegerea ta.' },
-  { id: 'zen', name: 'Budismul zen', school: 'Zen', stance: 'presence', quote: 'Înainte de iluminare: tai lemne, cari apă. După iluminare: tai lemne, cari apă.',
+  { id: 'zen', short: 'Zen', name: 'Budismul zen', school: 'Zen', stance: 'presence', quote: 'Înainte de iluminare: tai lemne, cari apă. După iluminare: tai lemne, cari apă.',
     source: 'Zicală zen tradițională', says: 'Stânca nu se schimbă. Atenția ta, da. Fii pe deplin aici, la pasul ăsta.' },
 ];
 
@@ -112,4 +112,82 @@ export const CLASS_VERDICT = {
   hope: 'Clasa mizează pe mai târziu. Camus numește asta saltul.',
   escape: 'Clasa privește în altă parte. Stânca e tot acolo.',
   none: 'Așteptăm primele răspunsuri.',
+};
+
+/* Testul viziunilor: șapte situații din viața de student. Fiecare răspuns aparține uneia dintre cele șapte viziuni din PANEL. */
+export const QUIZ = [
+  { q: 'Ai învățat toată săptămâna și ai luat 5 din 10 la examen. Ce-ți trece prin cap?', a: {
+    camus: 'Nota e absurdă. Dau următorul examen oricum, cu ochii deschiși.',
+    nietzsche: 'Și nota asta face parte din povestea mea. N-aș șterge-o.',
+    kierkegaard: 'Încă nu văd motivul, dar am încredere că există unul.',
+    marcus: 'Nota nu depindea de mine. Pregătirea depindea, și o să mă pregătesc mai bine.',
+    epicurus: 'Nu merită să-mi pierd somnul. Diseară ies cu prietenii.',
+    confucius: 'Le datorez familiei și profesorilor să fac mai bine data viitoare.',
+    zen: 'S-a terminat. Acum există doar următoarea pagină de citit.' } },
+  { q: 'A treia sesiune. Aceeași bibliotecă, aceeași cafea, aceeași panică. Cum o vezi?', a: {
+    camus: 'Nu se termină niciodată, și e în regulă. Împinsul în sine e de ajuns.',
+    nietzsche: 'Dacă ar trebui să trăiesc exact sesiunea asta la nesfârșit, aș vrea să spun da.',
+    kierkegaard: 'E o încercare. Ceva de dincolo de ea o face să merite.',
+    marcus: 'Sesiunile fac parte din drumul pe care l-am ales. Îmi fac partea și mă plâng mai puțin.',
+    epicurus: 'Țin totul simplu: trec examenele, dorm bine, sar peste stresul inutil.',
+    confucius: 'Fiecare sesiune e încă un coș de pământ pe movilă. Nu mă opresc.',
+    zen: 'Aceeași bibliotecă, dar niciodată aceeași clipă. Încerc să fiu cu adevărat acolo.' } },
+  { q: 'Un prieten spune: „Nimic din toate astea nu contează. Peste o sută de ani vom fi toți morți.” Tu răspunzi:', a: {
+    camus: 'Exact. Nu vine nimeni să-i dea un sens, așa că trăitul depinde de noi.',
+    nietzsche: 'Atunci fă din fiecare zi una pe care ai vrea s-o repeți la nesfârșit.',
+    kierkegaard: 'Poate nu în lumea asta. Eu cred că contează dincolo de ea.',
+    marcus: 'Totul trece. Așa că fă-ți bine treaba de azi și nu te agăța de ea.',
+    epicurus: 'Atunci de ce să ne facem griji? Moartea nu e nimic pentru noi. Hai la o cină liniștită.',
+    confucius: 'Contează pentru oamenii din jurul nostru acum: părinți, prieteni, cei pe care îi învățăm.',
+    zen: 'Peste o sută de ani e doar un gând. Conversația asta e reală.' } },
+  { q: 'Proiect de grup. Doi colegi n-au făcut nimic, iar termenul e mâine.', a: {
+    camus: 'E nedrept și nimeni n-o să repare asta. Îl termin oricum, în felul meu.',
+    nietzsche: 'Fac din el ceva cu care să mă mândresc. Lenea lor nu-mi stabilește standardul.',
+    kierkegaard: 'Fac tot ce pot și am încredere că până la urmă se va face dreptate.',
+    marcus: 'Alegerile lor nu depind de mine. Partea mea o fac bine și calm.',
+    epicurus: 'Fac ce mă ține liniștit. Nu merită o noapte de furie.',
+    confucius: 'Un grup merge când fiecare își ține rolul. Vorbesc cu ei, apoi îmi fac partea.',
+    zen: 'Nu mai repet cearta în minte și scriu următorul paragraf.' } },
+  { q: 'Cineva te întreabă: „De fapt, de ce înveți asta?”', a: {
+    camus: 'Nu există un motiv măreț. Am ales asta, și e de ajuns.',
+    nietzsche: 'Ca să devin ceea ce sunt.',
+    kierkegaard: 'Simt că sunt chemat spre asta, chiar și când nu pot explica de ce.',
+    marcus: 'Ca să fiu util. E rolul meu și vreau să-l joc bine.',
+    epicurus: 'Pentru o viață liniștită și simplă mai târziu. Nu pentru prestigiu.',
+    confucius: 'Ca să-mi onorez familia și să-i servesc pe alții cu ce învăț.',
+    zen: 'Sincer? Când sunt prins în ea, nu mă întreb de ce.' } },
+  { q: 'Duminică seara. Săptămâna care vine arată exact ca ultima.', a: {
+    camus: 'Aceeași stâncă din nou. Faptul că știu asta nu mă oprește. Mă eliberează.',
+    nietzsche: 'Să vină. Aș alege din nou săptămâna asta, cu fiecare luni al ei.',
+    kierkegaard: 'Sper că duce undeva unde încă nu văd.',
+    marcus: 'Planific ce pot controla și accept restul.',
+    epicurus: 'Plănuiesc o masă bună, o plimbare lungă și o seară cu prietenii.',
+    confucius: 'Îmi fac o rutină mică și o respect. Disciplina e o formă de respect.',
+    zen: 'Nu mă uit la toată săptămâna. Luni dimineață e de ajuns.' } },
+  { q: 'Ajungi în sfârșit în vârf: diploma luată, slujba visată. Și apoi?', a: {
+    camus: 'Sigur încă o stâncă. Urcușul a fost ideea, nu vârful.',
+    nietzsche: 'Urc mai sus și mă depășesc din nou.',
+    kierkegaard: 'Nici vârful nu mă va umple. Doar ceva dincolo de el.',
+    marcus: 'Rămân modest. Vârfurile vin și pleacă, caracterul rămâne.',
+    epicurus: 'Cobor de pe munte și mă bucur de o grădină liniștită.',
+    confucius: 'Mă întorc și îi ajut pe cei care urcă în urma mea.',
+    zen: 'Tai lemne, cari apă.' } },
+];
+
+/* Ce spune fiecare rezultat despre tine și care dintre cei șapte te-ar contrazice. */
+export const WORLDVIEW = {
+  camus: { you: 'Nu ai nevoie ca stânca să însemne ceva. Împingi cu ochii deschiși, iar efortul în sine e de ajuns.',
+    rival: 'kierkegaard', why: 'Ar spune că te-ai oprit cu un pas înainte de credință. Camus numește pasul acela saltul și îl refuză.' },
+  nietzsche: { you: 'Nu doar accepți stânca, ci o vrei. Să spui da la tot, inclusiv la părțile plictisitoare, e felul tău de a fi puternic.',
+    rival: 'marcus', why: 'Te-ar întreba de ce trebuie să iubești soarta. S-o accepți calm îți cere mult mai puțin.' },
+  kierkegaard: { you: 'Bănuiești că sensul se află dincolo de munte și ești gata să faci saltul spre el fără dovezi.',
+    rival: 'camus', why: 'L-a citit atent pe Kierkegaard și a numit saltul sinucidere filozofică: o fugă de absurd în loc de o viață cu el.' },
+  marcus: { you: 'Împarți lumea în ce depinde de tine și ce nu, și îți faci partea bine, fără dramă.',
+    rival: 'epicurus', why: 'Te-ar întreba de ce cari atâta datorie. O viață liniștită printre prieteni cere mult mai puțină.' },
+  epicurus: { you: 'Îți păstrezi nevoile mici și prietenii aproape. De ce să urci pentru glorie când o grădină liniștită e de ajuns?',
+    rival: 'marcus', why: 'Ar spune că îi datorezi lumii munca ta și că o viață bună nu e o retragere din ea.' },
+  confucius: { you: 'Împingi pentru oamenii din jurul tău. Învățatul e o datorie și o practică, ridicată coș cu coș.',
+    rival: 'epicurus', why: 'Ți-ar spune să trăiești neobservat: datoria și reputația sunt poveri de care nu ai nevoie.' },
+  zen: { you: 'Nu întrebi ce înseamnă stânca. Îți dai toată atenția pasului ăstuia, apoi următorului.',
+    rival: 'kierkegaard', why: 'Ar spune că această clipă nu e de ajuns și că sinele are nevoie de ceva dincolo de ea.' },
 };

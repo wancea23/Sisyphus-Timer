@@ -70,32 +70,41 @@
       <li><span class="num">I</span><div><h3 class="step-t">Prezentatorul pornește o clasă</h3><p>Apar un cod QR și un cod de 4 litere, destul de mari pentru ultimul rând.</p></div></li>
       <li><span class="num">II</span><div><h3 class="step-t">Fiecare răspunde de pe telefon</h3><p>O întrebare, cele trei răspunsuri ale lui Camus și o propoziție opțională. Nu se colectează nume.</p></div></li>
       <li><span class="num">III</span><div><h3 class="step-t">Sala se vede pe sine</h3><p>Proiectorul arată împărțirea între evadare, speranță și revoltă, împreună cu răspunsurile scrise. Prezentatorul poate ascunde orice răspuns și poate porni o rundă nouă.</p></div></li>
+      <li><span class="num">IV</span><div><h3 class="step-t">Sau dați împreună testul viziunilor</h3><p>Prezentatorul trece sala pe test. Fiecare răspunde de pe telefon la șapte situații, iar proiectorul arată cu care dintre cele șapte viziuni seamănă clasa.</p></div></li>
     </ol>
   </section>
 
-  <section id="classStudent" class="student" hidden aria-labelledby="stQ">
+  <section id="classStudent" class="student" hidden aria-label="Răspunsul tău">
     <p class="eyebrow" id="stInfo">Clasa · Runda 1</p>
-    <h1 class="page-title" id="stQ">De ce îl împingi?</h1>
-    <textarea id="stWhy" rows="3" maxlength="160" aria-labelledby="stQ" placeholder="O propoziție sinceră. Apare pe proiector fără numele tău."></textarea>
-    <fieldset class="choices">
-      <legend class="eyebrow">Cum privești stânca?</legend>
-      <label class="opt"><input type="radio" name="cresp" value="escape" id="cEscape"><b>Privește în altă parte</b><span>Derulezi, dormi, renunți. Te prefaci că întrebarea nici n-a apărut.</span></label>
-      <label class="opt"><input type="radio" name="cresp" value="hope" id="cHope"><b>Speră că merită</b><span>Totul va avea sens mai târziu: diploma, slujba, viața de după.</span></label>
-      <label class="opt"><input type="radio" name="cresp" value="revolt" id="cRevolt"><b>Împinge oricum</b><span>Nicio promisiune că ceva are sens. Împingi cu ochii deschiși, iar efortul e al tău.</span></label>
-    </fieldset>
-    <div class="verdict" id="stVerdict" hidden aria-live="polite"><q id="stQuote"></q><p id="stNote"></p><div id="stAllies"></div></div>
+    <div class="student-part" id="stRock">
+      <h1 class="page-title" id="stQ">De ce îl împingi?</h1>
+      <textarea id="stWhy" rows="3" maxlength="160" aria-labelledby="stQ" placeholder="O propoziție sinceră. Apare pe proiector fără numele tău."></textarea>
+      <fieldset class="choices">
+        <legend class="eyebrow">Cum privești stânca?</legend>
+        <label class="opt"><input type="radio" name="cresp" value="escape" id="cEscape"><b>Privește în altă parte</b><span>Derulezi, dormi, renunți. Te prefaci că întrebarea nici n-a apărut.</span></label>
+        <label class="opt"><input type="radio" name="cresp" value="hope" id="cHope"><b>Speră că merită</b><span>Totul va avea sens mai târziu: diploma, slujba, viața de după.</span></label>
+        <label class="opt"><input type="radio" name="cresp" value="revolt" id="cRevolt"><b>Împinge oricum</b><span>Nicio promisiune că ceva are sens. Împingi cu ochii deschiși, iar efortul e al tău.</span></label>
+      </fieldset>
+      <div class="verdict" id="stVerdict" hidden aria-live="polite"><q id="stQuote"></q><p id="stNote"></p><div id="stAllies"></div></div>
+      <div class="controls left"><button class="btn primary" id="stSend" type="button" disabled>Trimite pe proiector</button></div>
+    </div>
+    <div class="student-part" id="stTest" hidden>
+      <h1 class="page-title">Cine ți-ar împinge stânca?</h1>
+      <p class="small">Șapte situații din viața de student. Rezultatul tău apare pe proiector, fără nume.</p>
+      <div id="stQuiz" aria-live="polite"></div>
+    </div>
+    <p class="note" id="stStatus" role="status"></p>
     <div class="controls left">
-      <button class="btn primary" id="stSend" type="button" disabled>Trimite pe proiector</button>
       <a class="btn" href="./">Deschide cronometrul</a>
       <button class="btn ghost" id="stLeave" type="button">Ieși din clasă</button>
     </div>
-    <p class="note" id="stStatus" role="status"></p>
   </section>
 
   <section id="board" class="board" hidden aria-label="Rezultatele clasei">
     <header class="host-top">
-      <div><p class="eyebrow">Modul clasă · Runda <span id="hRound">1</span></p><h1 class="page-title">De ce îl împingi?</h1></div>
+      <div><p class="eyebrow">Modul clasă · Runda <span id="hRound">1</span></p><h1 class="page-title" id="hTitle">De ce îl împingi?</h1></div>
       <div class="host-actions">
+        <button class="btn sm" id="hMode" type="button">Testul viziunilor</button>
         <button class="btn sm" id="hShow" type="button">Ascunde răspunsurile</button>
         <button class="btn sm" id="hRoundBtn" type="button">Rundă nouă</button>
         <button class="btn sm" id="hFull" type="button">Ecran complet</button>
@@ -117,7 +126,7 @@
         <p class="verdict-line" id="hVerdict">Așteptăm primele răspunsuri.</p>
         <div class="host-stats">
           <span><b id="hPeople">0</b> prezenți acum</span>
-          <span><b id="hVotes">0</b> răspunsuri</span>
+          <span><b id="hVotes">0</b> <span id="hVotesL">răspunsuri</span></span>
           <span><b id="hBoulders">0</b> bolovani ai clasei</span>
         </div>
         <p class="note" id="hErr" role="alert"></p>

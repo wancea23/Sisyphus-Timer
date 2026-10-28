@@ -234,7 +234,7 @@ function openReflect() {
   $$('input[name=resp]').forEach((r) => { r.checked = false; });
   $('#verdict').hidden = true; $('#allies').innerHTML = '';
   $('#descend').disabled = true; $('#skipDescent').disabled = true;
-  $('#shareRow').hidden = !room.code;
+  $('#shareRow').hidden = !room.code || room.mode === 'test';
   if (room.code) $('#shareLabel').textContent = t('reflect.share', { code: room.code });
   openDialog($('#reflect'));
   updateUI();
