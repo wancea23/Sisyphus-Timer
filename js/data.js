@@ -72,23 +72,101 @@ export const STANCES = {
 
 /* Seven worldviews looking at the same rock. `stance` maps to the escape / hope / revolt choice where one fits. */
 export const PANEL = [
-  { id: 'camus', name: 'Albert Camus', school: 'Absurdism', stance: 'revolt', quote: 'One must imagine Sisyphus happy.',
+  { id: 'camus', short: 'Camus', name: 'Albert Camus', school: 'Absurdism', stance: 'revolt', quote: 'One must imagine Sisyphus happy.',
     source: 'The Myth of Sisyphus, 1942', says: 'Push anyway, eyes open. The struggle is enough, and no reason beyond it is needed.' },
-  { id: 'nietzsche', name: 'Friedrich Nietzsche', school: 'Amor fati', stance: 'revolt',
+  { id: 'nietzsche', short: 'Nietzsche', name: 'Friedrich Nietzsche', school: 'Amor fati', stance: 'revolt',
     quote: 'My formula for greatness in a human being is amor fati: that one wants nothing to be different, not forward, not backward, not in all eternity.',
     source: 'Ecce Homo, 1888, tr. Kaufmann', says: 'Would you push this exact rock again, forever? Then love it, every step of it.' },
-  { id: 'kierkegaard', name: 'Søren Kierkegaard', school: 'Christian existentialism', stance: 'hope', quote: 'Without risk there is no faith.',
+  { id: 'kierkegaard', short: 'Kierkegaard', name: 'Søren Kierkegaard', school: 'Christian existentialism', stance: 'hope', quote: 'Without risk there is no faith.',
     source: 'Concluding Unscientific Postscript, 1846', says: 'The meaning lies beyond the mountain, and reaching it takes a leap of faith. Camus names this the leap and refuses it.' },
-  { id: 'marcus', name: 'Marcus Aurelius', school: 'Stoicism', stance: 'accept', quote: 'The impediment to action advances action. What stands in the way becomes the way.',
+  { id: 'marcus', short: 'Marcus', name: 'Marcus Aurelius', school: 'Stoicism', stance: 'accept', quote: 'The impediment to action advances action. What stands in the way becomes the way.',
     source: 'Meditations 5.20, tr. Hays', says: 'The rock is not in your way. It is the way. Do your part well and let the outcome go.' },
-  { id: 'epicurus', name: 'Epicurus', school: 'Epicureanism', stance: 'escape', quote: 'Live unnoticed.',
+  { id: 'epicurus', short: 'Epicurus', name: 'Epicurus', school: 'Epicureanism', stance: 'escape', quote: 'Live unnoticed.',
     source: 'Fragment, reported by Plutarch', says: 'Why climb for glory at all? Keep your needs small and your friends close, and avoid needless pain.' },
-  { id: 'confucius', name: 'Confucius', school: 'Confucianism', stance: 'duty',
+  { id: 'confucius', short: 'Confucius', name: 'Confucius', school: 'Confucianism', stance: 'duty',
     quote: 'If there want but one basket of earth to complete the work, and I stop, the stopping is my own work.',
     source: 'Analects 9.18, tr. Legge', says: 'Learning is raising a mound one basket at a time. Every basket counts, and stopping is your own choice.' },
-  { id: 'zen', name: 'Zen Buddhism', school: 'Zen', stance: 'presence', quote: 'Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.',
+  { id: 'zen', short: 'Zen', name: 'Zen Buddhism', school: 'Zen', stance: 'presence', quote: 'Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.',
     source: 'Traditional Zen saying', says: 'The rock does not change. Your attention does. Be fully here for this one step.' },
 ];
+
+/* The worldview test: seven situations from student life. Each answer belongs to one of the seven worldviews in PANEL. */
+export const QUIZ = [
+  { q: 'You studied all week and got a 5 out of 10 on the exam. What goes through your head?', a: {
+    camus: 'The grade is absurd. I’ll take the next exam anyway, with my eyes open.',
+    nietzsche: 'Even this grade belongs to my story. I wouldn’t erase it.',
+    kierkegaard: 'I can’t see the reason yet, but I trust there is one.',
+    marcus: 'The grade wasn’t up to me. How I prepared was, and I’ll prepare better.',
+    epicurus: 'Not worth losing sleep over. Tonight I’m seeing my friends.',
+    confucius: 'I owe it to my family and my teachers to do better next time.',
+    zen: 'It’s done. Right now there is just the next page to read.' } },
+  { q: 'Your third exam session. Same library, same coffee, same panic. How do you see it?', a: {
+    camus: 'It never ends, and that’s fine. The pushing itself is enough.',
+    nietzsche: 'If I had to live this exact session again forever, I’d want to say yes.',
+    kierkegaard: 'It’s a test. Something on the other side makes it worth it.',
+    marcus: 'Sessions are part of the path I chose. I’ll do my part and complain less.',
+    epicurus: 'Keep it small: pass, sleep well, skip the needless stress.',
+    confucius: 'Every session is one more basket of earth on the mound. I don’t stop.',
+    zen: 'Same library, but never the same moment. I try to actually be there.' } },
+  { q: 'A friend says: “None of this matters. In a hundred years we’ll all be dead.” You answer:', a: {
+    camus: 'Exactly. Nobody is coming to give it meaning, so the living is up to us.',
+    nietzsche: 'Then make every day one you’d want to repeat forever.',
+    kierkegaard: 'Not in this world, maybe. I believe it matters beyond it.',
+    marcus: 'Everything passes. So do today’s work well and don’t cling to it.',
+    epicurus: 'Then why worry? Death is nothing to us. Let’s have a quiet dinner.',
+    confucius: 'It matters to the people around us now: parents, friends, those we teach.',
+    zen: 'A hundred years from now is a thought. This conversation is real.' } },
+  { q: 'Group project. Two teammates did nothing, and the deadline is tomorrow.', a: {
+    camus: 'It’s unfair and nobody will fix that. I finish it anyway, on my terms.',
+    nietzsche: 'I make it something I’m proud of. Their laziness doesn’t set my standard.',
+    kierkegaard: 'I do my best and trust it will be made right in the end.',
+    marcus: 'Their choices aren’t mine to control. My part I do well, and calmly.',
+    epicurus: 'I do what keeps me calm. It isn’t worth a night of rage.',
+    confucius: 'A group works when each keeps to their role. I talk to them, then do mine.',
+    zen: 'I stop rehearsing the argument in my head and write the next paragraph.' } },
+  { q: 'Someone asks you: “Why are you even studying this?”', a: {
+    camus: 'There’s no grand reason. I chose it, and that’s enough.',
+    nietzsche: 'To become who I am.',
+    kierkegaard: 'I feel called to it, even when I can’t explain why.',
+    marcus: 'To be useful. It’s my part to play, and I want to play it well.',
+    epicurus: 'For a calm, simple life later. Not for prestige.',
+    confucius: 'To honor my family and serve others with what I learn.',
+    zen: 'Honestly? When I’m in it, I don’t ask why.' } },
+  { q: 'Sunday evening. The week ahead looks exactly like the last one.', a: {
+    camus: 'Same rock again. Knowing that doesn’t stop me. It frees me.',
+    nietzsche: 'Bring it. I’d choose this week again, every Monday of it.',
+    kierkegaard: 'I hope it’s leading somewhere I can’t see yet.',
+    marcus: 'I plan what I can control and accept the rest.',
+    epicurus: 'I plan one good meal, one long walk and one evening with friends.',
+    confucius: 'I set a small routine and keep it. Discipline is a form of respect.',
+    zen: 'I don’t look at the whole week. Monday morning is enough.' } },
+  { q: 'You finally reach the top: degree done, dream job. Then what?', a: {
+    camus: 'Another rock, surely. The climb was the point, not the summit.',
+    nietzsche: 'Climb higher, and overcome myself again.',
+    kierkegaard: 'Even the summit won’t fill me. Only something beyond it will.',
+    marcus: 'Stay modest. Summits come and go, character stays.',
+    epicurus: 'Walk off the mountain and enjoy a quiet garden.',
+    confucius: 'Turn around and help the people climbing behind me.',
+    zen: 'Chop wood, carry water.' } },
+];
+
+/* What each test result says about you, and which of the seven would argue back. */
+export const WORLDVIEW = {
+  camus: { you: 'You don’t need the rock to mean anything. You push with your eyes open, and the effort itself is enough.',
+    rival: 'kierkegaard', why: 'He would say you stopped one step short of faith. Camus calls that step the leap, and refuses it.' },
+  nietzsche: { you: 'You don’t just accept the rock, you want it. Saying yes to all of it, the dull parts too, is your kind of strength.',
+    rival: 'marcus', why: 'He would ask why you need to love fate at all. Accepting it calmly asks much less of you.' },
+  kierkegaard: { you: 'You suspect the meaning lies beyond the mountain, and you are ready to leap toward it without proof.',
+    rival: 'camus', why: 'He read Kierkegaard closely and called the leap philosophical suicide: escaping the absurd instead of living with it.' },
+  marcus: { you: 'You split the world into what is up to you and what is not, and you do your part well, without drama.',
+    rival: 'epicurus', why: 'He would ask why you carry so much duty. A quiet life with friends needs far less of it.' },
+  epicurus: { you: 'You keep your needs small and your friends close. Why climb for glory when a quiet garden is enough?',
+    rival: 'marcus', why: 'He would say you owe the world your work, and that a good life is not a retreat from it.' },
+  confucius: { you: 'You push for the people around you. Study is a duty and a practice, raised one basket of earth at a time.',
+    rival: 'epicurus', why: 'He would tell you to live unnoticed: duty and reputation are burdens you don’t need.' },
+  zen: { you: 'You don’t ask what the rock means. You give your full attention to this step, then to the next one.',
+    rival: 'kierkegaard', why: 'He would say this moment is not enough, and that the self needs something beyond it.' },
+};
 
 /* Who sides with each answer in the reflection, and who would argue back. */
 export const ALLIES = {

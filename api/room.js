@@ -1,6 +1,7 @@
 /* Class mode backend: one room per class, stored in Upstash Redis through its REST API (no dependencies).
    Keys expire after 12 hours. Votes are keyed by the student's random client id, so voting again replaces the old vote.
    Each room gets a random epoch, so a reused code never inherits an old room's data.
+   A room is in one of two modes: 'rock' (escape / hope / revolt, with a sentence) or 'test' (the worldview test result).
    A whole class usually shares one network address, so the per-network limits are generous; they stop scripts, not students. */
 
 const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -8,7 +9,10 @@ const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_R
 const TTL = 60 * 60 * 12;
 const CODE_RE = /^[A-HJ-NP-Z]{4}$/;
 const ID_RE = /^[a-z0-9]{12}$/;
-const CHOICES = ['escape', 'hope', 'revolt'];
+const CHOICES = {
+  rock: ['escape', 'hope', 'revolt'],
+  test: ['camus', 'nietzsche', 'kierkegaard', 'marcus', 'epicurus', 'confucius', 'zen'],
+};
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 const LOWER = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const ACTIVE_MS = 3 * 60 * 1000;
@@ -60,7 +64,7 @@ async function loadRoom(code) {
   const [flat] = await redis([['HGETALL', roomKey(code)]]);
   const m = pairs(flat);
   if (!m.host) return null;
-  return { code, epoch: m.epoch || '0', host: m.host, round: Number(m.round) || 1 };
+  return { code, epoch: m.epoch || '0', host: m.host, round: Number(m.round) || 1, mode: m.mode === 'test' ? 'test' : 'rock' };
 }
 
 async function readRoom(code) {
@@ -73,20 +77,20 @@ async function readRoom(code) {
     ['GET', sub(r, 'boulders')],
   ]);
   const hide = new Set(hidden || []);
-  const counts = { escape: 0, hope: 0, revolt: 0 };
+  const counts = Object.fromEntries(CHOICES[r.mode].map((c) => [c, 0]));
   const answers = [];
   const v = pairs(votes);
   for (const id of Object.keys(v)) {
     let e;
     try { e = JSON.parse(v[id]); } catch { continue; }
-    if (!e || !CHOICES.includes(e.c)) continue;
+    if (!e || !CHOICES[r.mode].includes(e.c)) continue;
     counts[e.c]++;
     if (!e.w) continue;
     const k = await hash(code + ':' + id, 4);
     if (!hide.has(r.round + ':' + k)) answers.push({ k, c: e.c, w: e.w, t: Number(e.t) || 0 });
   }
   answers.sort((a, b) => b.t - a.t);
-  return { code, round: r.round, counts, answers: answers.slice(0, 60), people: Number(people) || 0, boulders: Number(boulders) || 0 };
+  return { code, round: r.round, mode: r.mode, counts, answers: answers.slice(0, 60), people: Number(people) || 0, boulders: Number(boulders) || 0 };
 }
 
 export async function GET(request) {
@@ -128,11 +132,17 @@ export async function POST(request) {
     const r = await loadRoom(code);
     if (!r) return fail('No class with that code. Check the code on the projector.', 404);
 
-    if (b.action === 'round' || b.action === 'hide') {
+    if (b.action === 'round' || b.action === 'mode' || b.action === 'hide') {
       if (typeof b.hostKey !== 'string' || b.hostKey !== r.host) return fail('Only the host can do that.', 403);
       if (b.action === 'round') {
         const [n] = await redis([['HINCRBY', roomKey(code), 'round', 1], touch(roomKey(code))]);
         return json({ ok: true, round: Number(n) });
+      }
+      if (b.action === 'mode') {
+        /* Switching mode always opens a fresh round, so rock votes and test results never mix. */
+        const mode = b.mode === 'test' ? 'test' : 'rock';
+        const [, n] = await redis([['HSET', roomKey(code), 'mode', mode], ['HINCRBY', roomKey(code), 'round', 1], touch(roomKey(code))]);
+        return json({ ok: true, round: Number(n), mode });
       }
       const k = String(b.key || '');
       if (!/^[a-f0-9]{8}$/.test(k)) return fail('Bad answer key.');
@@ -155,15 +165,17 @@ export async function POST(request) {
 
     if (b.action === 'hello') {
       await redis(seen);
-      return json({ ok: true, round: r.round });
+      return json({ ok: true, round: r.round, mode: r.mode });
     }
     if (b.action === 'vote') {
       const c = String(b.choice || '');
-      if (!CHOICES.includes(c)) return fail('Pick escape, hope or revolt.');
+      if (!CHOICES[r.mode].includes(c)) {
+        return fail(r.mode === 'test' ? 'This round is the worldview test. Take it on the class page.' : 'This round is about the rock. Pick escape, hope or revolt.', 409);
+      }
       const vk = sub(r, 'v' + r.round);
       const [n, mine] = await redis([['HLEN', vk], ['HEXISTS', vk, id]]);
       if (Number(n) >= 400 && Number(mine) !== 1) return fail('This round is full.', 429);
-      await redis([['HSET', vk, id, JSON.stringify({ c, w: clean(b.why, 160), t: Date.now() })], touch(vk), ...seen]);
+      await redis([['HSET', vk, id, JSON.stringify({ c, w: r.mode === 'rock' ? clean(b.why, 160) : '', t: Date.now() })], touch(vk), ...seen]);
       return json({ ok: true, round: r.round });
     }
     if (b.action === 'boulder') {

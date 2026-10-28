@@ -1,16 +1,18 @@
 /* Class mode. The core (join, heartbeat, votes, boulders) also runs on the timer page.
-   The class page adds the presenter's board (QR code, live results) and the student's answer form. */
+   The class page adds the presenter's board (QR code, live results) and the student's answer form.
+   A room is either about the rock (escape / hope / revolt) or running the worldview test; the host switches between them. */
 import { store, clientId } from './store.js';
 import { $, $$, esc, toast } from './ui.js';
-import { RESP, CLASS_VERDICT } from './data.js';
+import { RESP, CLASS_VERDICT, PANEL, WORLDVIEW } from './data.js';
 import { unlock, alliesHTML } from './features.js';
+import { runQuiz, resultHTML } from './quiz.js';
 
 const API = '/api/room';
 const CODE_RE = /^[A-HJ-NP-Z]{4}$/;
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
 const remembered = store.get('joined', null);
-export const room = { code: CODE_RE.test(remembered || '') ? remembered : null, round: 1, beat: 0 };
-const host = { code: null, key: null, poll: 0, showAnswers: true };
+export const room = { code: CODE_RE.test(remembered || '') ? remembered : null, round: 1, mode: 'rock', beat: 0 };
+const host = { code: null, key: null, poll: 0, showAnswers: true, mode: 'rock' };
 
 async function call(body, query) {
   const res = await fetch(API + (query || ''), body
@@ -27,7 +29,7 @@ export async function join(code) {
   code = String(code || '').trim().toUpperCase();
   if (!CODE_RE.test(code)) throw new Error('Codes are 4 letters, like KTRM.');
   const r = await call({ action: 'hello', code, id: clientId() });
-  room.code = code; room.round = r.round; store.set('joined', code);
+  room.code = code; room.round = r.round; room.mode = r.mode || 'rock'; store.set('joined', code);
   unlock(['chorus']);
   return r;
 }
@@ -47,7 +49,7 @@ export function heartbeat(ms, onChange) {
     call({ action: 'hello', code: room.code, id: clientId() })
       .then((r) => {
         const changed = r.round !== room.round;
-        room.round = r.round;
+        room.round = r.round; room.mode = r.mode || 'rock';
         if (onChange && (first || changed)) onChange(r.round, first);
         first = false;
       })
@@ -84,21 +86,37 @@ function showChooser(msg) {
 }
 
 /* Student */
+function startTest() {
+  runQuiz($('#stQuiz'), async (score) => {
+    $('#stQuiz').innerHTML = resultHTML(score) + '<div class="controls left"><button class="btn ghost" id="stRetake" type="button">Take it again</button></div>';
+    $('#stRetake').addEventListener('click', () => { $('#stStatus').textContent = ''; startTest(); });
+    if (await sendVote(score.top, '')) $('#stStatus').textContent = 'Sent. If you take it again, your new result replaces this one.';
+  });
+}
 function resetStudentForm() {
+  $('#stInfo').textContent = 'Class ' + room.code + ' · Round ' + room.round + (room.mode === 'test' ? ' · Worldview test' : '');
+  $('#stRock').hidden = room.mode === 'test'; $('#stTest').hidden = room.mode !== 'test';
+  $('#stStatus').textContent = '';
+  if (room.mode === 'test') { startTest(); return; }
   $('#stWhy').value = '';
   $$('input[name=cresp]').forEach((r) => { r.checked = false; });
-  $('#stVerdict').hidden = true; $('#stSend').disabled = true; $('#stStatus').textContent = '';
+  $('#stVerdict').hidden = true; $('#stSend').disabled = true;
 }
 function showStudent() {
   show('#classStudent');
-  $('#stInfo').textContent = 'Class ' + room.code + ' · Round ' + room.round;
   resetStudentForm();
+  let shown = room.mode;
   heartbeat(15000, (round, initial) => {
     if (round === null) { showChooser('That class has ended.'); return; }
-    $('#stInfo').textContent = 'Class ' + room.code + ' · Round ' + round;
-    if (initial) return;
+    /* The first sync only redraws when the remembered mode was out of date, so an answer already started is kept. */
+    if (initial) {
+      if (room.mode !== shown) { shown = room.mode; resetStudentForm(); }
+      else $('#stInfo').textContent = 'Class ' + room.code + ' · Round ' + round + (room.mode === 'test' ? ' · Worldview test' : '');
+      return;
+    }
+    shown = room.mode;
     resetStudentForm();
-    toast('New round. You can answer again.');
+    toast(room.mode === 'test' ? 'The class is taking the worldview test now.' : 'New round. You can answer again.');
   });
 }
 async function joinAndShow(code) {
@@ -128,12 +146,38 @@ async function drawQr(url) {
     '" height="' + (n + 4) + '" class="qr-bg"/><path d="' + d + '" class="qr-fg"/></svg>';
 }
 
+function renderTestBoard(data) {
+  const ids = PANEL.map((p) => p.id), count = (id) => data.counts[id] || 0;
+  const total = ids.reduce((n, id) => n + count(id), 0);
+  $('#hBars').innerHTML = PANEL.map((p) => {
+    const n = count(p.id), pct = total ? Math.round((n / total) * 100) : 0;
+    return '<div class="bar-row ' + p.stance + '"><span class="bl">' + esc(p.short) + '</span><div class="track"><i style="width:' + pct + '%"></i></div><span class="bn">' + n + ' · ' + pct + '%</span></div>';
+  }).join('');
+  const most = Math.max(...ids.map(count)), tops = PANEL.filter((p) => count(p.id) === most);
+  if (!total) $('#hVerdict').textContent = 'Waiting for the first results.';
+  else if (tops.length > 1) $('#hVerdict').textContent = 'The class is split between ' + tops.map((p) => p.short).join(' and ') + '. Let them argue it out.';
+  else {
+    const foe = PANEL.find((p) => p.id === WORLDVIEW[tops[0].id].rival);
+    $('#hVerdict').textContent = 'The class sounds most like ' + tops[0].name + '. ' + foe.name + ' would argue back.';
+  }
+  return total;
+}
+
 function renderBoard(data) {
-  const total = data.counts.escape + data.counts.hope + data.counts.revolt;
+  const test = data.mode === 'test';
+  host.mode = data.mode;
+  $('#hTitle').textContent = test ? 'Who would push your rock?' : 'Why are you pushing it?';
+  $('#hMode').textContent = test ? 'Back to the rock' : 'Worldview test';
+  $('#hBars').classList.toggle('seven', test);
+  $('#hVotesL').textContent = test ? 'results' : 'answers';
+  $('#hShow').hidden = test;
+  $('#hWall').hidden = test || !host.showAnswers;
   $('#hRound').textContent = data.round;
   $('#hPeople').textContent = data.people;
-  $('#hVotes').textContent = total;
   $('#hBoulders').textContent = data.boulders;
+  if (test) { $('#hVotes').textContent = renderTestBoard(data); return; }
+  const total = data.counts.escape + data.counts.hope + data.counts.revolt;
+  $('#hVotes').textContent = total;
   $('#hBars').innerHTML = ['revolt', 'hope', 'escape'].map((c) => {
     const n = data.counts[c], pct = total ? Math.round((n / total) * 100) : 0;
     return '<div class="bar-row ' + c + '"><span class="bl">' + RESP[c].tag + '</span><div class="track"><i style="width:' + pct + '%"></i></div><span class="bn">' + n + ' · ' + pct + '%</span></div>';
@@ -142,7 +186,6 @@ function renderBoard(data) {
   const tie = total && ['revolt', 'hope', 'escape'].filter((c) => data.counts[c] === data.counts[top]).length > 1;
   $('#hVerdict').textContent = tie ? 'The class is split. That is the absurd too.' : CLASS_VERDICT[top];
   const wall = $('#hWall');
-  wall.hidden = !host.showAnswers;
   wall.innerHTML = data.answers.length
     ? data.answers.map((a) => '<li class="note-card ' + a.c + '"><span class="tag ' + a.c + '">' + RESP[a.c].tag + '</span><p>“' + esc(a.w) + '”</p>' +
       '<button type="button" class="hide-btn" data-k="' + esc(a.k) + '" aria-label="Hide this answer">Hide</button></li>').join('')
@@ -205,6 +248,16 @@ export function initClassPage() {
     host.showAnswers = !host.showAnswers;
     $('#hShow').textContent = host.showAnswers ? 'Hide answers' : 'Show answers';
     $('#hWall').hidden = !host.showAnswers;
+  });
+  $('#hMode').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    btn.disabled = true;
+    try {
+      const r = await call({ action: 'mode', code: host.code, hostKey: host.key, mode: host.mode === 'test' ? 'rock' : 'test' });
+      toast(r.mode === 'test' ? 'Worldview test started. Phones switch within a few seconds.' : 'Back to the rock. Everyone can answer again.');
+      pollBoard();
+    } catch (e) { $('#hErr').textContent = e.message; }
+    finally { btn.disabled = false; }
   });
   $('#hRoundBtn').addEventListener('click', async (ev) => {
     const btn = ev.currentTarget;

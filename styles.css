@@ -384,3 +384,30 @@ a.btn{display:inline-block; text-decoration:none}
 .board:fullscreen{background:var(--bg); overflow-y:auto; padding:24px max(24px, env(safe-area-inset-left, 0px))}
 .board::backdrop{background:var(--bg)}
 .board .page-title{font-size:clamp(30px, 4vw, 48px)}
+
+/* the worldview test */
+.wv-test{display:grid; gap:12px; padding:18px; border:2px solid var(--fg); background:var(--surface); box-shadow:6px 6px 0 var(--figure); max-width:760px}
+.wv-test .controls{margin-top:0}
+#wvQuiz{display:grid; gap:12px; min-width:0}
+.quiz{display:grid; gap:14px; min-width:0}
+.quiz-top{display:grid; gap:6px}
+.quiz-track{height:6px; border:1.5px solid var(--fg); position:relative}
+.quiz-track i{position:absolute; top:0; bottom:0; left:0; background:var(--fg); transition:width .3s ease-out}
+.quiz-q{font:400 clamp(20px, 3vw, 24px)/1.3 var(--display); margin-bottom:10px; outline:none}
+.quiz .opt{grid-template-columns:auto minmax(0, 1fr)}
+.quiz .opt b{font:400 17px/1.4 var(--body)}
+.quiz .controls{margin-top:0}
+.wv-result{border:2px solid var(--fg); background:var(--bg)}
+.wv-result .wv-you{font:400 17px/1.5 var(--body)}
+.mix{display:grid; gap:6px; margin-top:4px}
+.mix-row{display:grid; grid-template-columns:6.5em minmax(0, 1fr) 1.5em; gap:10px; align-items:center; font:500 14px/1.2 var(--ui)}
+.mix-row b{text-align:right; font-variant-numeric:tabular-nums}
+.mix-track{height:10px; border:1.5px solid var(--fg); position:relative}
+.mix-track i{position:absolute; top:0; bottom:0; left:0; background:var(--fg)}
+.wv-check{max-width:64ch; color:var(--fg)}
+.student-part{display:grid; gap:16px}
+.bars.seven{gap:10px}
+.bars.seven .bar-row{grid-template-columns:8.5em minmax(0, 1fr) 6.5em}
+.bars.seven .bl{font-size:clamp(17px, 1.9vw, 24px)}
+.bars.seven .track{height:clamp(20px, 2.4vw, 32px)}
+@media (max-width:520px){ .bars.seven .bar-row{grid-template-columns:6.4em minmax(0, 1fr) 4.6em} .bars.seven .bl{font-size:16px} }

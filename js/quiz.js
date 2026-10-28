@@ -1,0 +1,106 @@
+/* The worldview test: seven situations, one answer each, and the worldview you answered like most.
+   Runs on the worldviews page and, as a class round, on the student's phone. */
+import { S, store } from './store.js';
+import { $, esc } from './ui.js';
+import { PANEL, QUIZ, WORLDVIEW, STANCES, RESP } from './data.js';
+
+const find = (id) => PANEL.find((p) => p.id === id);
+
+function shuffled(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/* picks: one worldview id per question. A tie goes to the worldview picked latest. */
+export function scoreQuiz(picks) {
+  const counts = Object.fromEntries(PANEL.map((p) => [p.id, 0]));
+  picks.forEach((id) => { counts[id]++; });
+  const last = (id) => picks.lastIndexOf(id);
+  const order = PANEL.map((p) => p.id).sort((a, b) => counts[b] - counts[a] || last(b) - last(a));
+  return { top: order[0], runner: counts[order[1]] ? order[1] : null, counts };
+}
+
+/* Shows one question at a time in root, then calls onDone(score). */
+export function runQuiz(root, onDone) {
+  const order = QUIZ.map((item) => shuffled(Object.keys(item.a)));
+  const picks = [];
+  let i = 0;
+  const paint = () => {
+    const item = QUIZ[i];
+    root.innerHTML = '<div class="quiz">' +
+      '<div class="quiz-top"><p class="eyebrow">Situation ' + (i + 1) + ' of ' + QUIZ.length + '</p>' +
+      '<div class="quiz-track" aria-hidden="true"><i style="width:' + Math.round((i / QUIZ.length) * 100) + '%"></i></div></div>' +
+      '<fieldset class="choices"><legend class="quiz-q">' + esc(item.q) + '</legend>' +
+      order[i].map((id) => '<label class="opt"><input type="radio" name="quizA" value="' + id + '"' + (picks[i] === id ? ' checked' : '') + '><b>' + esc(item.a[id]) + '</b></label>').join('') +
+      '</fieldset><div class="controls left">' +
+      (i ? '<button class="btn ghost" type="button" data-quiz="back">Back</button>' : '') +
+      '<button class="btn primary" type="button" data-quiz="next"' + (picks[i] ? '' : ' disabled') + '>' + (i === QUIZ.length - 1 ? 'See my worldview' : 'Next') + '</button>' +
+      '</div></div>';
+    $('.quiz-q', root).setAttribute('tabindex', '-1');
+    $('.quiz-q', root).focus({ preventScroll: true });
+  };
+  root.onchange = (e) => {
+    if (e.target.name !== 'quizA') return;
+    picks[i] = e.target.value;
+    $('[data-quiz=next]', root).disabled = false;
+  };
+  root.onclick = (e) => {
+    const b = e.target.closest('[data-quiz]');
+    if (!b || b.disabled) return;
+    if (b.dataset.quiz === 'back') { i--; paint(); return; }
+    if (i < QUIZ.length - 1) { i++; paint(); return; }
+    root.onchange = null; root.onclick = null;
+    onDone(scoreQuiz(picks.slice(0, QUIZ.length)));
+  };
+  paint();
+}
+
+export function resultHTML(score) {
+  const p = find(score.top), w = WORLDVIEW[score.top], foe = find(w.rival), total = QUIZ.length;
+  const mix = PANEL.map((x) => x.id).filter((id) => score.counts[id]).sort((a, b) => score.counts[b] - score.counts[a]).map((id) =>
+    '<div class="mix-row"><span>' + esc(find(id).short) + '</span><div class="mix-track"><i style="width:' + Math.round((score.counts[id] / total) * 100) + '%"></i></div><b>' + score.counts[id] + '</b></div>').join('');
+  return '<article class="thinker wv-result">' +
+    '<p class="eyebrow">The one who would push your rock</p>' +
+    '<div class="th-head"><span class="mono" aria-hidden="true">' + esc(p.name.charAt(0)) + '</span><div><b>' + esc(p.name) + '</b><span>' + esc(p.school) +
+    '</span></div><span class="stance ' + p.stance + '">' + STANCES[p.stance] + '</span></div>' +
+    '<p class="wv-you">' + esc(w.you) + '</p>' +
+    '<q>' + esc(p.quote) + '</q><cite>' + esc(p.source) + '</cite>' +
+    '<p class="allies"><b>Arguing back:</b> ' + esc(foe.name) + '. ' + esc(w.why) + '</p>' +
+    (score.runner ? '<p class="allies"><b>Close behind:</b> ' + esc(find(score.runner).name) + '.</p>' : '') +
+    '<div class="mix" aria-label="Your answers by worldview">' + mix + '</div>' +
+    '</article>';
+}
+
+/* What you say against what you do: the test result next to the answers given on the timer. */
+export function sayVsDo(id) {
+  const st = S.stats, n = { revolt: st.revolt || 0, hope: st.hope || 0, escape: st.escape || 0 };
+  const total = n.revolt + n.hope + n.escape;
+  if (total < 3) return 'Push a few boulders on the timer, then come back. The test will compare what you say here with what you do on the mountain.';
+  const did = ['revolt', 'hope', 'escape'].sort((a, b) => n[b] - n[a])[0], p = find(id);
+  const fact = 'you chose ' + RESP[did].tag + ' ' + n[did] + ' times out of ' + total + '.';
+  if (!RESP[p.stance]) return 'The timer only asks about escape, hope and revolt, so it cannot check ' + p.short + ' directly. On the mountain ' + fact;
+  if (p.stance === did) return 'On the mountain you act the same way: ' + fact + ' You live what you answered.';
+  return 'But on the mountain ' + fact + ' Camus would ask which of the two is really you: the one who answers, or the one who pushes.';
+}
+
+/* The worldviews page: start the test, show the saved result, compare it with the timer. */
+export function initWorldviewTest() {
+  const box = $('#wvQuiz'), start = $('#wvStart');
+  const show = (score) => {
+    box.hidden = false;
+    box.innerHTML = resultHTML(score) + '<p class="note wv-check">' + esc(sayVsDo(score.top)) + '</p>' +
+      '<p class="small">Want the whole room to take it? Start a class on the <a href="class.html">Class</a> page and switch it to the worldview test.</p>';
+    start.textContent = 'Take it again'; start.hidden = false;
+  };
+  const saved = store.get('worldview', null);
+  if (saved && find(saved.top) && saved.counts) show(saved);
+  start.addEventListener('click', () => {
+    box.hidden = false; start.hidden = true;
+    runQuiz(box, (score) => {
+      store.set('worldview', Object.assign({ at: Date.now() }, score));
+      show(score);
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
