@@ -12,9 +12,6 @@ import { initNav } from './nav.js';
 const params = new URLSearchParams(location.search);
 /* Old QR links pointed at /?join=CODE; joining now happens on the class page. */
 if (params.get('join')) location.replace('class.html?join=' + encodeURIComponent(params.get('join')));
-/* The presenter's slides embed the timer with ?demo=1: 30-second climbs that leave the saved preset and session alone. */
-const DEMO = params.get('demo') === '1';
-if (DEMO) { S.keepPreset = S.settings.preset; S.ephemeral = true; S.settings.preset = 'demo'; applyPreset(); }
 
 const run = (S.run = {
   phase: 'ready', running: false, endAt: 0, remaining: S.settings.work * 1000, total: S.settings.work * 1000, brkTotal: S.settings.brk * 1000,
@@ -66,7 +63,7 @@ function renderClock() {
     const el = $('#timer');
     el.innerHTML = Array.from(txt).map((c) => (c === ':' ? '<span class="c">:</span>' : '<span class="d">' + c + '</span>')).join('');
     el.setAttribute('aria-label', t('timer.left', { t: txt }));
-    if (!DEMO) document.title = run.running && run.phase === 'work' ? t('title.pushing', { t: txt }) : run.running && run.phase === 'break' ? t('title.descent', { t: txt }) : run.phase === 'reflect' ? t('title.reflect') : t('title.base');
+    document.title = run.running && run.phase === 'work' ? t('title.pushing', { t: txt }) : run.running && run.phase === 'break' ? t('title.descent', { t: txt }) : run.phase === 'reflect' ? t('title.reflect') : t('title.base');
   }
   if (run.phase === 'work' && run.running) {
     const q = Math.min(3, Math.floor(progress() * 4));
@@ -311,7 +308,6 @@ function syncSettingsForm() {
 function settingsChanged() {
   applyPreset();
   if (!heroUnlocked(heroOf())) S.settings.hero = 'sisyphus';
-  if (S.keepPreset) S.keepPreset = S.settings.preset;
   save();
   if (run.phase === 'ready') { run.total = S.settings.work * 1000; run.remaining = run.total; lastClock = ''; renderClock(); saveRun(); }
   syncSettingsForm();
@@ -406,7 +402,7 @@ function wire() {
 
 /* ---------- boot ---------- */
 function boot() {
-  const saved = DEMO ? null : store.get('run', null);
+  const saved = store.get('run', null);
   if (saved && typeof saved === 'object' && PHASES.indexOf(saved.phase) !== -1) {
     Object.assign(run, saved); run.lastTick = 0; run.hiddenAt = 0;
     if (run.god && !GODS[run.god.i]) run.god = null;
@@ -415,7 +411,7 @@ function boot() {
   if (run.task) $('#task').value = run.task;
   initNav('timer'); initScene(); wire();
   syncSettingsForm(); updateUI(); renderGod();
-  if (room.code && !DEMO) {
+  if (room.code) {
     $('#classBar').hidden = false; $('#cbCode').textContent = room.code;
     heartbeat(45000, (round) => { if (round === null) $('#classBar').hidden = true; });
   }

@@ -1,14 +1,10 @@
-/* The shared header: Sisyphus' mood, a badge that keeps a running session visible on other pages,
-   embed mode for the presenter's slides, and the offline service worker. */
+/* The shared header: Sisyphus' mood, a badge that keeps a running session visible on other pages, and the offline service worker. */
 import { store } from './store.js';
 import { $, fmtS } from './ui.js';
 import { t } from './i18n.js';
 import { renderStats } from './features.js';
 
-export const EMBED = /[?&]embed=1/.test(location.search);
-
 export function initNav(current) {
-  if (EMBED) document.body.classList.add('embed');
   renderStats();
   if (current !== 'timer') runBadge();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {

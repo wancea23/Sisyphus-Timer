@@ -40,13 +40,8 @@ export function applyPreset() {
 }
 applyPreset();
 
-/* S.keepPreset: the presenter's embedded timer runs in Class demo without changing the saved preset. */
-export const save = () => {
-  store.set('settings', S.keepPreset ? Object.assign({}, S.settings, { preset: S.keepPreset }) : S.settings);
-  store.set('stats', S.stats); store.set('journal', S.journal);
-};
-/* S.ephemeral: the presenter's demo timer never overwrites a real session. */
-export const saveRun = () => { if (!S.ephemeral) store.set('run', S.run); };
+export const save = () => { store.set('settings', S.settings); store.set('stats', S.stats); store.set('journal', S.journal); };
+export const saveRun = () => store.set('run', S.run);
 export const bumpMood = (n) => { S.stats.mood = clamp(S.stats.mood + n, 0, 100); };
 export function resetStats() { Object.assign(S.stats, zeroStats()); S.journal = []; save(); }
 

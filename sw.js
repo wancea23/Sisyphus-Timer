@@ -1,8 +1,8 @@
 /* Offline support. Pages, styles and scripts: network first, so a new deploy shows up at once, with the cache as the offline fallback.
    Fonts and the QR library: cache first. The class API is never cached. */
-const CACHE = 'sisyphus-v5';
-const PAGES = ['', 'heroes.html', 'journal.html', 'progress.html', 'idea.html', 'worldviews.html', 'class.html', 'present.html'];
-const SCRIPTS = ['main', 'pages', 'present', 'nav', 'store', 'ui', 'i18n', 'data', 'data-en', 'data-ro', 'scene', 'audio', 'features', 'share', 'classroom', 'quiz'];
+const CACHE = 'sisyphus-v6';
+const PAGES = ['', 'heroes.html', 'journal.html', 'progress.html', 'idea.html', 'worldviews.html', 'class.html'];
+const SCRIPTS = ['main', 'pages', 'nav', 'store', 'ui', 'i18n', 'data', 'data-en', 'data-ro', 'scene', 'audio', 'features', 'share', 'classroom', 'quiz'];
 const CORE = [
   ...PAGES.map((p) => '/' + p), ...PAGES.map((p) => '/ro/' + p),
   '/styles.css', '/favicon.svg', '/icon-192.png', '/manifest.webmanifest',

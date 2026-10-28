@@ -33,7 +33,6 @@ The timer turns that argument into something you can try instead of only read ab
 | The idea | The myth, the argument, and sources |
 | Worldviews | Camus next to Nietzsche, Kierkegaard, Marcus Aurelius, Epicurus, Confucius and Zen, plus a worldview test: seven situations from student life, and which of the seven you sound like |
 | Class | Class mode: the presenter shows a QR code, everyone answers from their phone, results appear live. The room can also take the worldview test together |
-| Present | A ready-made slide deck with the live timer and the class vote built in, plus speaker notes |
 
 ## How it is built
 

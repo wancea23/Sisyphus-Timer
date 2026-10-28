@@ -320,7 +320,7 @@ export function initClassPage() {
   });
 
   const fromUrl = new URLSearchParams(location.search).get('join');
-  if (fromUrl) { history.replaceState(null, '', location.pathname + (/[?&]embed=1/.test(location.search) ? '?embed=1' : '')); joinAndShow(fromUrl); }
+  if (fromUrl) { history.replaceState(null, '', location.pathname); joinAndShow(fromUrl); }
   else if (room.code) showStudent();
   else showChooser();
 }

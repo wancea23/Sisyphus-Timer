@@ -4,9 +4,8 @@
 export const LANG = document.documentElement.lang === 'ro' ? 'ro' : 'en';
 export const LOCALE = LANG === 'ro' ? 'ro-RO' : 'en-GB';
 
-/* Send people to their language: a saved choice first, then a browser set to Romanian. Embedded pages never move. */
+/* Send people to their language: a saved choice first, then a browser set to Romanian. */
 (function routeLanguage() {
-  if (/[?&]embed=/.test(location.search)) return;
   const sw = document.querySelector('a[data-lang-switch]');
   if (!sw) return;
   let pref = null;
